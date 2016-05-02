@@ -1,5 +1,5 @@
 //
-// Created by lipsztyk on 02.05.16.
+// Created by Michal Lipinski on 02.05.16.
 //
 
 #include "../include/Server.h"

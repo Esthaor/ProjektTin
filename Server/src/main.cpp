@@ -1,3 +1,7 @@
+//
+// Created by Michal Lipinski on 02.05.16.
+//
+
 #include <iostream>
 #include "../include/Server.h"
 
@@ -8,6 +12,8 @@ int main() {
     Server* server = new Server();
 
     server->sendJson();
+
+    free(server);
 
     return 0;
 }
