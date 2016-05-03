@@ -8,10 +8,10 @@
 using namespace std;
 
 int main() {
-    cout << "Hello, World!" << endl;
     Server* server = new Server();
 
-    server->sendJson();
+    string json = server->writeJson("start", 22, "threshold", 666, 0);
+    server->sendJson(json);
 
     free(server);
 

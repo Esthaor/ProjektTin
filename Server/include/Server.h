@@ -12,6 +12,12 @@
 #include <netinet/in.h>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <string>
+
+using boost::property_tree::ptree;
+using boost::property_tree::read_json;
+using boost::property_tree::write_json;
+using namespace std;
 
 class Server {
 
@@ -26,8 +32,8 @@ public:
     Server();
     ~Server();
 
-    bool writeJson();
-    bool sendJson();
+    std::string writeJson(std::string status, int port, std::string endCondition, int endConditionValue, int alarmValue);
+    bool sendJson(std::string json);
     void error(char* msg);
 
 };
