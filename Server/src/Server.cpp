@@ -3,6 +3,7 @@
 //
 
 #include "../include/Server.h"
+#include "../include/Socket.h"
 
 Server::Server() {
 
@@ -35,6 +36,10 @@ string Server::writeJson(string status, int port, string endCondition, int endCo
 
 bool Server::sendJson(string json) {
 
-    std::cout << "Wysłano JSON: " << json << std::endl;
+    Socket* socket = new Socket();
+    socket->configureSocket();
+    if(socket->startCommunication(json))
+        std::cout << "Wysłano JSON: " << json << std::endl;
+
     return true;
 }

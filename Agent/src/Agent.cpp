@@ -3,6 +3,7 @@
 //
 
 #include "../include/Agent.h"
+#include "../include/Socket.h"
 
 Agent::Agent() {
 
@@ -14,13 +15,20 @@ Agent::~Agent() {
 
 bool Agent::receiveJson() {
 
-    // Przykładowy JSON
+    int port = 5010;
+
+    Socket* socket = new Socket();
+    socket->configureSocket(port);
+    socket->startCommunication();
+
+   /* // Przykładowy JSON
     string json = "{\"measurement\":{\"status\":\"start\",\"port\":\"22\",\"endCondition\":\"threshold\",\"endConditionValue\":\"666\",\"alarmValue\":\"0\"}}";
 
     ptree root;
     istringstream is (json);
     read_json (is, root); //konwersja do ptree
-    cout << root.get<string>("measurement.status") << endl; //odczyt przykładowego elementu
+    cout << root.get<string>("measurement.status") << endl; //odczyt przykładowego elementu*/
+
 
     return true;
 }
