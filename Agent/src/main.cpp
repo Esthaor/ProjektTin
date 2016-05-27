@@ -8,7 +8,8 @@ int main() {
     std::cout << "Hello, World2!" << std::endl;
     Agent* agent = new Agent();
 
-    agent->receiveJson();
+    //agent->receiveJson();
+    agent->sniff();
 
     free(agent);
 
