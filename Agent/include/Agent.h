@@ -9,7 +9,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <string>
-#include <pcap/pcap.h>
+#include <pcap.h>
 
 using boost::property_tree::ptree;
 using boost::property_tree::read_json;
@@ -18,16 +18,34 @@ using namespace std;
 
 class Agent {
 public:
-    int packet_counter;
+    enum EndCondition{
+        PACKETS,
+        TIME,
+        NONE
+    };
 
     Agent();
+    Agent(int port, EndCondition end_condition, int end_condition_value, int alarm);
     ~Agent();
+
+    void displayInformation();
+
+private:
+    int port;
+    EndCondition end_condition;
+    int end_condition_value;
+    int alarm;
+
+    int packet_counter;
+    bool enable_alarms;
 
     int sniff();
     static void callback(u_char* useless, const struct pcap_pkthdr* pkthdr, const u_char* packet);
     bool receiveJson();
 
 };
+
+
 
 
 #endif //PROJECT_AGENT_H

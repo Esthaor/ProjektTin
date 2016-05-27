@@ -5,11 +5,57 @@
 #include "../include/Agent.h"
 #include "../include/Socket.h"
 
-Agent::Agent() {
+
+
+Agent::Agent(){
+    this->port = -1;
+    this->end_condition_value = -1;
+    this->packet_counter = 0;
+}
+
+Agent::Agent(int port, EndCondition end_condition, int end_condition_value, int alarm) {
+    this->port = port;
+
+    if(end_condition == NONE) {
+        this->end_condition = TIME;
+        this->end_condition_value = 60;
+    }
+    else {
+        this->end_condition = end_condition;
+        this->end_condition_value = end_condition_value;
+    }
+
+    if(alarm == -1) {
+        this->enable_alarms = false;
+        this->alarm = -1;
+    }
+    else {
+        this->enable_alarms = true;
+        this->alarm = alarm;
+    }
+
     this->packet_counter = 0;
 }
 
 Agent::~Agent() {
+
+}
+
+void Agent::displayInformation() {
+    std::cout << "port: " << this->port << std::endl;
+    switch(this->end_condition){
+        case PACKETS:
+            std::cout << "end_condition: PACKETS " << std::endl;
+            break;
+        case TIME:
+            std::cout << "end_condition: TIME " << std::endl;
+            break;
+        case NONE:
+            std::cout << "end_condition: NONE " << std::endl;
+            break;
+    }
+    std::cout << "end_condition_value: " << this->end_condition_value << std::endl;
+    std::cout << "alarm: " << this->alarm << std::endl;
 
 }
 
