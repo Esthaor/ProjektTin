@@ -6,6 +6,7 @@
 #define PROJECT_AGENT_H
 
 #include <iostream>
+#include <stdio.h>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <string>
@@ -29,6 +30,8 @@ public:
     ~Agent();
 
     void displayInformation();
+    int showAllDevices();
+    int sniff();
 
 private:
     int port;
@@ -36,11 +39,12 @@ private:
     int end_condition_value;
     int alarm;
 
+
     int packet_counter;
     bool enable_alarms;
 
-    int sniff();
-    static void callback(u_char* useless, const struct pcap_pkthdr* pkthdr, const u_char* packet);
+    static void callback(u_char* args, const struct pcap_pkthdr* packet_header, const u_char* packet_body);
+    //void packet_info(const u_char *packet, struct pcap_pkthdr packet_header);
     bool receiveJson();
 
 };
