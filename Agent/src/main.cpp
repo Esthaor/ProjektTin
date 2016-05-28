@@ -11,13 +11,13 @@ void help();
 
 int main(int argc, char* argv[]) {
     int opt     = 0;
-    int port    = -1;
+    string port = "port ";
     int end_condition_value = -1;
     int alarm   = -1;
-
     Agent::EndCondition end_condition = Agent::NONE;
-
     int long_index = 0;
+
+    std::list<boost::thread*> thread_list;
 
     std::cout << "Hello, World2!" << std::endl;
 
@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
                 help();
                 return 0;
             case 'p':
-                port = atoi(optarg);
+                port += optarg;
                 break;
             case 'c':
                 end_condition = Agent::PACKETS;
@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
                 break;
             case 't':
                 end_condition = Agent::TIME;
-                end_condition_value = (atoi(optarg) * 1000);
+                end_condition_value = atoi(optarg);
                 break;
             case 'a':
                 alarm = atoi(optarg);
@@ -55,18 +55,15 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    Agent *agent = new Agent(port, end_condition, end_condition_value, alarm);
 
-    Agent* agent = new Agent(port, end_condition, end_condition_value, alarm);
-
-    //agent->receiveJson();
+    /*while(true){
+        if(agent->receiveJson()){
+            thread_list.push_back(new boost::thread(boost::bind(&Agent::sniff, agent)));
+        }
+    }*/
 
     agent->displayInformation();
-    //agent->showAllDevices();
-    agent->sniff();
-
-    free(agent);
-
-    return 0;
 }
 
 void help() {
