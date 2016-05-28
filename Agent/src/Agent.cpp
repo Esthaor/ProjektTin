@@ -79,64 +79,110 @@ bool Agent::receiveJson() {
     return true;
 }
 
+int Agent::showAllDevices() {
+    pcap_if_t* all_devices_list;
+    pcap_if_t* iterator;
+    char error_buffer[PCAP_ERRBUF_SIZE];
+
+    if(pcap_findalldevs(&all_devices_list, error_buffer) == -1){
+        fprintf(stderr, "Couldn't find all devices: %s\n", error_buffer);
+        exit(5);
+    }
+
+    if(all_devices_list == NULL) {
+        std::cout << "No devices found" << std::endl;
+        return 0;
+    }
+
+    iterator = all_devices_list;
+
+    std::cout << "Devices:" << std::endl;
+
+    do{
+        //printf("Name: %s\nAddress: %s\nDescription: %s\n", iterator->name, iterator->addresses->addr->sa_data, iterator->description);
+        printf("Name: %s\nDescription: %s\n", iterator->name, iterator->description);
+        iterator = iterator->next;
+    }while(iterator->next != NULL);
+
+    std::cout << "End of list" << endl;
+    return 0;
+}
+
 int Agent::sniff() {
 
     char* device;               // The device to sniff on
     char error_buffer[PCAP_ERRBUF_SIZE];    // Error string
 
-    bpf_u_int32 mask;		    // netmask
-    bpf_u_int32 net;		    // IP
+    bpf_u_int32 netmask;		    // netmask
+    bpf_u_int32 ip;		    // IP
 
     pcap_t *handle;             // Session handle
     struct bpf_program fp;		// The compiled filter
-    char filter_exp[] = "host www.google.com";	// The filter expression
+    char filter_exp[] = "host www.onet.pl";	// The filter expression
     struct pcap_pkthdr header;	// The header that pcap gives us
     const u_char *packet;		// The actual packet
+    u_char* args = NULL;
 
 
     /* Define the device */
     device = pcap_lookupdev(error_buffer);
-    if (device == NULL) {
+    if(device == NULL) {
         fprintf(stderr, "Couldn't find default device: %s\n", error_buffer);
         exit(1);
     }
 
     /* Find the properties for the device */
-    if (pcap_lookupnet(device, &net, &mask, error_buffer) == -1) {
+    if(pcap_lookupnet(device, &ip, &netmask, error_buffer) == -1) {
         fprintf(stderr, "Couldn't get netmask for device %s: %s\n", device, error_buffer);
-        net = 0;
-        mask = 0;
+        ip = 0;
+        netmask = 0;
     }
 
     printf("Device: %s\n", device);
 
     /* Open the session in promiscuous mode */
+    /*if(this->end_condition == TIME)
+        handle = pcap_open_live(device, BUFSIZ, 1, this->end_condition_value, error_buffer);
+    else*/
     handle = pcap_open_live(device, BUFSIZ, 1, -1, error_buffer);
-    if (handle == NULL) {
+    if(handle == NULL) {
         fprintf(stderr, "Couldn't open device %s: %s\n", device, error_buffer);
-        exit(1);
+        exit(2);
     }
 
     /* Compile and apply the filter */
-    if (pcap_compile(handle, &fp, filter_exp, 0, net) == -1) {
+    if(pcap_compile(handle, &fp, filter_exp, 0, ip) == -1) {
         fprintf(stderr, "Couldn't parse filter %s: %s\n", filter_exp, pcap_geterr(handle));
-        exit(1);
+        exit(3);
     }
 
-    if (pcap_setfilter(handle, &fp) == -1) {
+    if(pcap_setfilter(handle, &fp) == -1) {
         fprintf(stderr, "Couldn't install filter %s: %s\n", filter_exp, pcap_geterr(handle));
-        exit(1);
+        exit(4);
     }
 
-    /* Grab a packet */
-    pcap_loop(handle, -1, this->callback, NULL);
+    /* Grab packets */
+    if(this->end_condition == PACKETS)
+        pcap_loop(handle, this->end_condition_value, this->callback, args);
+    else
+        pcap_loop(handle, -1, this->callback, args); //forever
 
     return 0;
 }
 
-void Agent::callback(u_char *useless, const struct pcap_pkthdr *pkthdr, const u_char *packet) {
+void Agent::callback(u_char *args, const struct pcap_pkthdr *packet_header, const u_char *packet_body) {
     static int count = 1;
     fprintf(stdout,"%d, ",count);
     fflush(stdout);
     count++;
+
+    //packet_info(packet_body, *packet_header);
+
+    printf("packet capture length: %d\n", packet_header->caplen);
+    printf("packet total length: %d\n", packet_header->len);
+
 }
+
+/*void Agent::packet_info(const u_char *packet_body, struct pcap_pkthdr packet_header) {
+
+}*/

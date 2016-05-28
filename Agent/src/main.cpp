@@ -2,7 +2,7 @@
 // Created by Michal Lipinski on 02.05.16.
 //
 
-#include <stdio.h>
+#include <iostream>
 #include <getopt.h>
 
 #include "../include/Agent.h"
@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
                 break;
             case 't':
                 end_condition = Agent::TIME;
-                end_condition_value = atoi(optarg);
+                end_condition_value = (atoi(optarg) * 1000);
                 break;
             case 'a':
                 alarm = atoi(optarg);
@@ -59,9 +59,10 @@ int main(int argc, char* argv[]) {
     Agent* agent = new Agent(port, end_condition, end_condition_value, alarm);
 
     //agent->receiveJson();
-    //agent->sniff();
 
     agent->displayInformation();
+    //agent->showAllDevices();
+    agent->sniff();
 
     free(agent);
 
