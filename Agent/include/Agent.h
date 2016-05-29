@@ -31,8 +31,9 @@ public:
     };
 
     Agent();
-    Agent(string port, EndCondition end_condition, int end_condition_value, int alarm);
     ~Agent();
+
+    Agent(string port, EndCondition end_condition, int end_condition_value, int alarm);
 
     void displayInformation();
     int showAllDevices();

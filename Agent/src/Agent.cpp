@@ -79,7 +79,6 @@ bool Agent::receiveJson() {
 
     Socket* socket = new Socket();
     socket->configureSocket(port);
-    socket->startCommunication();
 
    /* // Przykładowy JSON
     string json = "{\"measurement\":{\"status\":\"start\",\"port\":\"22\",\"endCondition\":\"threshold\",\"endConditionValue\":\"666\",\"alarmValue\":\"0\"}}";

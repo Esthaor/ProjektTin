@@ -55,10 +55,11 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    Agent *agent = new Agent(port, end_condition, end_condition_value, alarm);
+    Agent *agent = new Agent(); //port, end_condition, end_condition_value, alarm);
 
-    /*while(true){
-        if(agent->receiveJson()){
+    agent->receiveJson();
+    /*
+        {
             thread_list.push_back(new boost::thread(boost::bind(&Agent::sniff, agent)));
         }
     }*/
