@@ -33,6 +33,7 @@ public:
 
     bool configureSocket(int port);
     void connection_handler (int socket_desc);
+    std::list<boost::thread*> thread_list;
 };
 
 #endif //PROJEKTTIN_SOCKET_H

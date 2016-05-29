@@ -2,6 +2,7 @@
 // Created by Aleksandra Ziegart on 10/05/16.
 //
 
+#include <thread>
 #include "../include/Socket.h"
 #include "../include/Agent.h"
 
@@ -55,16 +56,7 @@ bool Socket::configureSocket(int port)
     while( (client_socket = accept(socket_descriptor, (struct sockaddr *)&client, (socklen_t*)&c)) )
     {
         puts("Connection accepted");
-
-/*        if( pthread_create( &thread_id , NULL ,  connection_handler , (void*) &client_sock) < 0)
-        {
-            perror("could not create thread");
-            return 1;
-        }*/
-
-        boost::thread(boost::bind(&Socket::connection_handler, this, this->client_socket));
-        //Now join the thread , so that we dont terminate before the thread
-        //pthread_join( thread_id , NULL);
+        thread_list.push_back(new boost::thread(boost::bind(&Socket::connection_handler, this, this->client_socket)));
         puts("Handler assigned");
     }
     if (client_socket < 0)
@@ -83,20 +75,15 @@ void Socket::connection_handler (int socket_desc)
     //Get the socket descriptor
     int sock =  socket_desc;
     char buffer[256];
-    int n; //n - int informujący czy został odczytany komunikat
-
-
     bzero(buffer, 256);
-    //n = read(sock, buffer, 255);
     int len = read(sock, buffer, 255);
     if ( len < 0 ) {
         cout << "blad odczytu" << endl;
     } else if ( len == 0 ) {
         cout << "eof" << endl;
     } else {
-        std::string test(buffer, len);
-        std::istringstream is(test);
-        cout << "Odebrano: " << test << endl;  //TODO: konwersja buffer -> .. -> ptree
+        string inputBuffer(buffer, len);
+        istringstream is(inputBuffer);
 
         // Create a root
         ptree root;
@@ -118,7 +105,8 @@ void Socket::connection_handler (int socket_desc)
             int endConditionValue = root.get<int>("endConditionValue");
             int alarm = root.get<int>("alarmValue");
             port.insert(0, "port ");
-            Agent *test = new Agent(port, endCondition, endConditionValue, alarm);
+            Agent *agent = new Agent(port, endCondition, endConditionValue, alarm);
+            agent->sniff();
         }
     }
 

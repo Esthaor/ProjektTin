@@ -44,8 +44,6 @@ Agent::Agent(string port, EndCondition end_condition, int end_condition_value, i
     this->all_captured_length = 0;
     this->all_total_length = 0;
 
-
-    this->sniff();
 }
 
 Agent::~Agent() {
@@ -71,25 +69,6 @@ void Agent::displayInformation() {
     std::cout << "all captured packets length: " << this->all_captured_length << std::endl;
     std::cout << "all packets length: " << this->all_total_length << std::endl;
 
-}
-
-bool Agent::receiveJson() {
-
-    int port = 5010;
-
-    Socket* socket = new Socket();
-    socket->configureSocket(port);
-
-   /* // Przykładowy JSON
-    string json = "{\"measurement\":{\"status\":\"start\",\"port\":\"22\",\"endCondition\":\"threshold\",\"endConditionValue\":\"666\",\"alarmValue\":\"0\"}}";
-
-    ptree root;
-    istringstream is (json);
-    read_json (is, root); //konwersja do ptree
-    cout << root.get<string>("measurement.status") << endl; //odczyt przykładowego elementu*/
-
-
-    return true;
 }
 
 int Agent::showAllDevices() {

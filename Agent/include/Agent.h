@@ -37,7 +37,9 @@ public:
 
     void displayInformation();
     int showAllDevices();
+/*
     bool receiveJson();
+*/
     int sniff();
 
 private:
