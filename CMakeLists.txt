@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 
 project(ProjektTin)
 
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
 set(CMAKE_SHARED_LINKER_FLAGS "" CACHE STRING "shared linker flags")
 set(CMAKE_MODULE_LINKER_FLAGS "" CACHE STRING "module linker flags")
 

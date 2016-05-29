@@ -65,6 +65,7 @@ private:
     int revarp_packet_counter;
     //End of deprecated
 
+    char* findDevice();
     static void callback(u_char* args, const struct pcap_pkthdr* packet_header, const u_char* packet_body);
     void packetInfo(const u_char *packet, struct pcap_pkthdr packet_header);
     void signalAlarm();

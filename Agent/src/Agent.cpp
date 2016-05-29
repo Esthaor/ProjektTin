@@ -96,13 +96,35 @@ int Agent::showAllDevices() {
         iterator = iterator->next;
     }while(iterator->next != NULL);
 
+    pcap_freealldevs(all_devices_list);
+
     std::cout << "End of list" << endl;
     return 0;
+}
+
+char* Agent::findDevice() {
+    pcap_if_t* all_devices_list;
+    pcap_if_t* iterator;
+    char error_buffer[PCAP_ERRBUF_SIZE];
+
+    if (pcap_findalldevs(&all_devices_list, error_buffer) == -1) {
+        fprintf(stderr, "There is a problem with pcap_findalldevs: %s\n", error_buffer);
+        return NULL;
+    }
+
+    for (iterator = all_devices_list; iterator != NULL; iterator = iterator->next) {
+        for (pcap_addr_t* device_address = iterator->addresses; device_address != NULL; device_address = device_address->next) {
+            if (device_address->addr->sa_family == AF_INET && device_address->addr && device_address->netmask) {
+                return iterator->name;
+            }
+        }
+    }
 }
 
 int Agent::sniff() {
 
     char* device;               // The device to sniff on
+
     char error_buffer[PCAP_ERRBUF_SIZE];    // Error string
 
     bpf_u_int32 netmask;		    // netmask
@@ -110,15 +132,17 @@ int Agent::sniff() {
 
     struct bpf_program fp;		// The compiled filter
     const char* filter_exp = this->port.c_str();	// The filter expression
-    //struct pcap_pkthdr header;	// The header that pcap gives us
-    //const u_char *packet;		// The actual packet
 
     /* Define the device */
-    device = pcap_lookupdev(error_buffer);
-    if(device == NULL) {
-        fprintf(stderr, "Couldn't find default device: %s\n", error_buffer);
-        exit(1);
+    if(NULL) {
+        device = pcap_lookupdev(error_buffer);
+        if (device == NULL) {
+            fprintf(stderr, "Couldn't find default device: %s\n", error_buffer);
+            exit(1);
+        }
     }
+    else
+        device = this->findDevice();
 
     /* Find the properties for the device */
     if(pcap_lookupnet(device, &ip, &netmask, error_buffer) == -1) {
