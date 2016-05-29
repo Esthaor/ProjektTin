@@ -7,8 +7,20 @@
 
 #include "../include/Agent.h"
 
-void help();
+//void help();
 
+int main() {
+       std::cout << "Hello, World2!" << std::endl;
+
+       Agent* agent = new Agent();
+
+        agent->receiveJson();
+
+        free(agent);
+
+        return 0;
+    }
+/*
 int main(int argc, char* argv[]) {
     int opt     = 0;
     string port = "port ";
@@ -56,13 +68,16 @@ int main(int argc, char* argv[]) {
     }
 
     Agent *agent = new Agent(port, end_condition, end_condition_value, alarm);
+*/
+
+
 
     /*while(true){
         if(agent->receiveJson()){
             thread_list.push_back(new boost::thread(boost::bind(&Agent::sniff, agent)));
         }
     }*/
-
+/*
     agent->displayInformation();
 }
 
@@ -73,3 +88,4 @@ void help() {
     std::cout << "<endCondition>\t-t or -time\tafter how many seconds agent should end collecting statistics" << std::endl;
     std::cout << "<alarm>\t\t-a or -alarm\tafter how many captured packets agent should signal alarm" << std::endl;
 }
+*/

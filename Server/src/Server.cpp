@@ -36,10 +36,12 @@ string Server::writeJson(string status, int port, string endCondition, int endCo
 
 bool Server::sendJson(string json) {
 
+
     Socket* socket = new Socket();
+
     socket->configureSocket();
-    if(socket->startCommunication(json))
-        std::cout << "Wysłano JSON: " << json << std::endl;
+    socket->startCommunication(json);
+    //    std::cout << "Wysłano JSON: " << json << std::endl;
 
     return true;
 }

@@ -65,5 +65,24 @@ bool Socket::startCommunication()
 
     cout << "Odebrano: " << buffer << endl;  //TODO: konwersja buffer -> .. -> ptree
 
+
+while(1)
+{
+    cout << "Message (press q to terminate): " << endl;
+
+    if(buffer[0] == 'q')
+        break;
+
+    bzero(buffer, 256);
+    fgets(buffer, 255, stdin);
+    n = write(sockfd, buffer, strlen(buffer));
+
+    if (n < 0) {
+        perror("ERROR writing to socket");
+        exit(1);
+    }
+
+
+}
     return true;
 }
