@@ -167,17 +167,23 @@ int Agent::sniff() {
     }
 
     /* Grab packets */
-    if(this->end_condition == PACKETS) {
-        if (this->enable_alarms)
-            this->thread_alarm = new boost::thread(boost::bind(&Agent::signalAlarm, this));
-        pcap_loop(this->handler, this->end_condition_value, this->callback, (u_char *) this);
+    try {
+        if (this->end_condition == PACKETS) {
+            if (this->enable_alarms)
+                this->thread_alarm = new boost::thread(boost::bind(&Agent::signalAlarm, this));
+            pcap_loop(this->handler, this->end_condition_value, this->callback, (u_char *) this);
+        }
+        else {
+            this->start_sniffing_time = time(NULL);
+            if (this->enable_alarms)
+                this->thread_alarm = new boost::thread(boost::bind(&Agent::signalAlarm, this));
+            this->thread_timeout = new boost::thread(boost::bind(&Agent::stopSniffing, this));
+            pcap_loop(this->handler, -1, this->callback, (u_char *) this);
+        }
     }
-    else {
-        this->start_sniffing_time = time(NULL);
-        if (this->enable_alarms)
-            this->thread_alarm = new boost::thread(boost::bind(&Agent::signalAlarm, this));
-        this->thread_timeout = new boost::thread(boost::bind(&Agent::stopSniffing, this));
-        pcap_loop(this->handler, -1, this->callback, (u_char*)this);
+    catch(boost::thread_interrupted&){
+        cout << "ZŁAPANY!" << endl;
+        pcap_breakloop(this->handler);
     }
 
     Socket::sendToServer(this->buildJson("results"));
@@ -188,18 +194,21 @@ int Agent::sniff() {
 void Agent::callback(u_char *args, const struct pcap_pkthdr *packet_header, const u_char *packet_body) {
         Agent *instance = (Agent *) args;
         instance->packetInfo(packet_body, *packet_header);
+        boost::this_thread::interruption_point();
 }
 
 void Agent::packetInfo(const u_char *packet_body, struct pcap_pkthdr packet_header) {
-    try {
+    //try {
         this->packet_counter++;
         this->all_captured_length += (int) packet_header.caplen; //amount of data available
         this->all_total_length += (int) packet_header.len; //actual length of packet
-        boost::this_thread::interruption_point();
+        /*boost::this_thread::interruption_point();
     }
     catch(boost::thread_interrupted&){
-            pcap_breakloop(this->handler);
+        cout << "ZŁAPANY!" << endl;
+        pcap_breakloop(this->handler);
     }
+    */
 }
 
 void Agent::signalAlarm() {

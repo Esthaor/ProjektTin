@@ -5,25 +5,28 @@
       <sourceFolder url="file://$MODULE_DIR$/Server/src/Socket.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Server/src/main.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Server/src/Server.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/cmake_modules/Findsqlite3.cmake" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Agent/src/Socket.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Agent/src/main.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Agent/src/Agent.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Agent/src/Socket.cpp" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
       <library name="Header Search Paths">
         <CLASSES>
-          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include" />
           <root url="file:///usr/include" />
+          <root url="file:///usr/lib64/gcc/x86_64-suse-linux/4.8/include-fixed" />
+          <root url="file:///usr/lib64/gcc/x86_64-suse-linux/4.8/include" />
           <root url="file:///usr/local/include" />
+          <root url="file:///usr/x86_64-suse-linux/include" />
         </CLASSES>
         <SOURCES>
-          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include-fixed" />
-          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/5/include" />
           <root url="file:///usr/include" />
+          <root url="file:///usr/lib64/gcc/x86_64-suse-linux/4.8/include-fixed" />
+          <root url="file:///usr/lib64/gcc/x86_64-suse-linux/4.8/include" />
           <root url="file:///usr/local/include" />
+          <root url="file:///usr/x86_64-suse-linux/include" />
         </SOURCES>
       </library>
     </orderEntry>

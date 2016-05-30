@@ -30,11 +30,11 @@ bool Socket::sendToServer(string json)
     }
     server.sin_addr.s_addr = inet_addr("127.0.0.1"); //adres serwera
     server.sin_family = AF_INET;
-    server.sin_port = htons(5010);
+    server.sin_port = htons(5000);
 
     if (connect(socket_desc , (struct sockaddr *)&server , sizeof(server)) < 0)
     {
-        puts("Connection error!\n");
+        puts("Server unreachable, retrying in 30 seconds!\n"); //TODO: retry
         return false;
     }
 
@@ -79,7 +79,7 @@ bool Socket::configureSocket(int port)
     listen(socket_descriptor , 10); //10 - max ilość połączeń w kolejce
 
 
-    //Accept and incoming connection
+    //Accept an incoming connection
 
     puts("Waiting for incoming connections...");
     c = sizeof(struct sockaddr_in);
@@ -87,7 +87,7 @@ bool Socket::configureSocket(int port)
     while( (client_socket = accept(socket_descriptor, (struct sockaddr *)&client, (socklen_t*)&c)) )
     {
         puts("Connection accepted");
-        thread_list.push_back(new boost::thread(boost::bind(&Socket::connection_handler, this, this->client_socket)));
+        new boost::thread(boost::bind(&Socket::connection_handler, this, this->client_socket));
         puts("Handler assigned");
     }
     if (client_socket < 0)
@@ -138,8 +138,9 @@ void Socket::connection_handler (int socket_desc)
             int alarm = root.get<int>("alarmValue");
             port.insert(0, "port ");
             Agent *agent = new Agent(this->next_capture_id, port, endCondition, endConditionValue, alarm);
+            thread_list.push_back(new boost::thread(boost::bind(&Agent::sniff, agent)));
             this->next_capture_id++;
-            agent->sniff();
+            //agent->sniff();
         }
 
         if (status == "change") { //rozpoczęcie pomiaru
@@ -157,8 +158,9 @@ void Socket::connection_handler (int socket_desc)
         }
 
         if (status == "stop") { //rozpoczęcie pomiaru
-            cout << "status is start" << endl;
+            cout << "status is stop" << endl;
             unsigned id = root.get<unsigned>("id");
+            cout << "poszedl interrupt" << endl;
             this->thread_list[id]->interrupt();
         }
 
