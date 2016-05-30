@@ -8,7 +8,7 @@ set(AGENT_SOURCE_FILES
         Agent/src/main.cpp
         Agent/src/Agent.cpp
         Agent/src/Socket.cpp
-        )
+        Agent/src/ThreadMutex.cpp Agent/include/ThreadMutex.h Agent/src/ThreadMutex.cpp Agent/include/ThreadMutex.h)
 
 set(SERVER_SOURCE_FILES
         Server/src/main.cpp

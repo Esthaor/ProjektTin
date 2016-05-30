@@ -16,6 +16,7 @@
 #include <boost/thread.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <ThreadMutex.h>
 
 using boost::property_tree::ptree;
 using boost::property_tree::read_json;
@@ -33,11 +34,14 @@ public:
     struct sockaddr_in server, client;
 
     unsigned next_capture_id;
+    std::vector<boost::thread*> thread_list;
+    static std::vector<ThreadMutex*> mutex_list;
+
+    ThreadMutex* findMutex(int id);
 
     static bool sendToServer(string json);
     bool configureSocket(int port);
     void connection_handler (int socket_desc);
-    std::vector<boost::thread*> thread_list;
 };
 
 #endif //PROJEKTTIN_SOCKET_H
