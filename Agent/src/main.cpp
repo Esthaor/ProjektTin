@@ -61,19 +61,22 @@ int main(int argc, char* argv[]) {
     Socket* socket = new Socket();
 
     if(argc > 1) {
-        Agent *agent = new Agent(port, end_condition, end_condition_value, alarm);
-
+        Agent *agent = new Agent(socket->next_capture_id, port, end_condition, end_condition_value, alarm);
+        socket->next_capture_id++;
         socket->thread_list.push_back(new boost::thread(boost::bind(&Agent::sniff, agent)));
+        //informacja do serwera o uruchomionym pomiarze z palca
+        socket->configureSocket(PORT);
+        // send: agent->buildJson("started");
     }
-
-    socket->configureSocket(PORT);
-
+    else {
+        socket->configureSocket(PORT);
+    }
 }
 
 void help() {
     std::cout << "sidagent <port> <endCondition> <alarm>" << std::endl;
-    std::cout << "<port>\t\t-p or -port\tport to sniff" << std::endl;
-    std::cout << "<endCondition>\t-c or -pacekts\tafter how many packets agent should end collecting statistics" << std::endl;
-    std::cout << "<endCondition>\t-t or -time\tafter how many seconds agent should end collecting statistics" << std::endl;
-    std::cout << "<alarm>\t\t-a or -alarm\tafter how many captured packets agent should signal alarm" << std::endl;
+    std::cout << "<port>\t\t-p or --port\tport to sniff" << std::endl;
+    std::cout << "<endCondition>\t-c or --pacekts\tafter how many packets agent should end collecting statistics" << std::endl;
+    std::cout << "<endCondition>\t-t or --time\tafter how many seconds agent should end collecting statistics" << std::endl;
+    std::cout << "<alarm>\t\t-a or --alarm\tafter how many captured bytes agent should signal alarm" << std::endl;
 }
