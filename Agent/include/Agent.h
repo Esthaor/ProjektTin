@@ -16,6 +16,7 @@
 #include <pcap.h>
 #include <netinet/in.h>
 #include <net/ethernet.h>
+#include <ThreadMutex.h>
 
 using boost::property_tree::ptree;
 using boost::property_tree::read_json;
@@ -30,12 +31,12 @@ public:
         NONE
     };
 
-    unsigned capture_id;
+    int capture_id;
 
     Agent();
     ~Agent();
 
-    Agent(unsigned capture_id, string port, EndCondition end_condition, int end_condition_value, int alarm);
+    Agent(int capture_id, string port, EndCondition end_condition, int end_condition_value, int alarm);
 
     void displayInformation();
     int showAllDevices();
@@ -44,6 +45,8 @@ public:
     string buildJson(string type);
 
 private:
+    ThreadMutex* threadMutex;
+
     pcap_t* handler;
     string port;
     EndCondition end_condition;
@@ -58,6 +61,7 @@ private:
     int all_captured_length;
     int all_total_length;
 
+    void findMutex();
     char* findDevice();
     static void callback(u_char* args, const struct pcap_pkthdr* packet_header, const u_char* packet_body);
     void packetInfo(const u_char *packet, struct pcap_pkthdr packet_header);
