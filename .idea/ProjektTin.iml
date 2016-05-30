@@ -5,14 +5,10 @@
       <sourceFolder url="file://$MODULE_DIR$/Server/src/Socket.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Server/src/main.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Server/src/Server.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Server/include/Server.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Server/include/Socket.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Agent/src/main.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Agent/src/Agent.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Agent/src/Socket.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Agent/include/Agent.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Agent/include/Socket.h" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
