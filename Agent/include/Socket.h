@@ -34,6 +34,7 @@ public:
 
     unsigned next_capture_id;
 
+    static bool sendToServer(string json);
     bool configureSocket(int port);
     void connection_handler (int socket_desc);
     std::vector<boost::thread*> thread_list;

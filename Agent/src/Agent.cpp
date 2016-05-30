@@ -135,6 +135,8 @@ int Agent::sniff() {
     struct bpf_program fp;		// The compiled filter
     const char* filter_exp = this->port.c_str();	// The filter expression
 
+    boost::thread(Socket::sendToServer, buildJson("started"));
+
     /* Define the device */
     if(NULL) {
         device = pcap_lookupdev(error_buffer);

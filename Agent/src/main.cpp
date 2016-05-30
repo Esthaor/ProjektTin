@@ -58,15 +58,17 @@ int main(int argc, char* argv[]) {
                 exit(1);
         }
     }
-    Socket* socket = new Socket();
+    static Socket* socket = new Socket();
 
     if(argc > 1) {
         Agent *agent = new Agent(socket->next_capture_id, port, end_condition, end_condition_value, alarm);
         socket->next_capture_id++;
         socket->thread_list.push_back(new boost::thread(boost::bind(&Agent::sniff, agent)));
+        string dowyslania = agent->buildJson("started");
+        cout << "Taki zaraz powinien wyslac " << dowyslania << endl;
+        socket->sendToServer(dowyslania);
         //informacja do serwera o uruchomionym pomiarze z palca
         socket->configureSocket(PORT);
-        // send: agent->buildJson("started");
     }
     else {
         socket->configureSocket(PORT);

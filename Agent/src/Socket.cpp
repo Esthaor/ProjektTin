@@ -16,6 +16,37 @@ Socket::~Socket()
 
 }
 
+bool Socket::sendToServer(string json)
+{
+    int socket_desc;
+    struct sockaddr_in server;
+    char message[256];
+
+    json.copy(message,json.length(),0);
+    socket_desc = socket(AF_INET , SOCK_STREAM , 0);
+    if (socket_desc == -1)
+    {
+        printf("Could not create socket!\n");
+    }
+    server.sin_addr.s_addr = inet_addr("127.0.0.1"); //adres serwera
+    server.sin_family = AF_INET;
+    server.sin_port = htons(5010);
+
+    if (connect(socket_desc , (struct sockaddr *)&server , sizeof(server)) < 0)
+    {
+        puts("Connection error!\n");
+        return false;
+    }
+
+    if( send(socket_desc , message , strlen(message) , 0) < 0)
+    {
+        puts("Sending failed!\n");
+        return false;
+    }
+    cout << "JSON sent: " << json << endl;
+    return true;
+}
+
 bool Socket::configureSocket(int port)
 {
     port_number = port;
