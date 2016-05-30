@@ -135,18 +135,9 @@ int Agent::sniff() {
     struct bpf_program fp;		// The compiled filter
     const char* filter_exp = this->port.c_str();	// The filter expression
 
-    boost::thread(Socket::sendToServer, buildJson("started"));
+    boost::thread(boost::bind(Socket::sendToServer, this->buildJson("started")));
 
-    /* Define the device */
-    if(NULL) {
-        device = pcap_lookupdev(error_buffer);
-        if (device == NULL) {
-            fprintf(stderr, "Couldn't find default device: %s\n", error_buffer);
-            exit(1);
-        }
-    }
-    else
-        device = this->findDevice();
+    device = this->findDevice();
 
     /* Find the properties for the device */
     if(pcap_lookupnet(device, &ip, &netmask, error_buffer) == -1) {
@@ -176,54 +167,48 @@ int Agent::sniff() {
     }
 
     /* Grab packets */
-    if(this->end_condition == PACKETS) {
-        if (this->enable_alarms)
-            this->thread_timeout = new boost::thread(boost::bind(&Agent::signalAlarm, this));
-        pcap_loop(this->handler, this->end_condition_value, this->callback, (u_char *) this);
+    try {
+        if (this->end_condition == PACKETS) {
+            if (this->enable_alarms)
+                this->thread_alarm = new boost::thread(boost::bind(&Agent::signalAlarm, this));
+            pcap_loop(this->handler, this->end_condition_value, this->callback, (u_char *) this);
+        }
+        else {
+            this->start_sniffing_time = time(NULL);
+            if (this->enable_alarms)
+                this->thread_alarm = new boost::thread(boost::bind(&Agent::signalAlarm, this));
+            this->thread_timeout = new boost::thread(boost::bind(&Agent::stopSniffing, this));
+            pcap_loop(this->handler, -1, this->callback, (u_char *) this);
+        }
     }
-    else {
-        this->start_sniffing_time = time(NULL);
-        if (this->enable_alarms)
-            this->thread_timeout = new boost::thread(boost::bind(&Agent::signalAlarm, this));
-        this->thread_timeout = new boost::thread(boost::bind(&Agent::stopSniffing, this));
-        pcap_loop(this->handler, -1, this->callback, (u_char*)this);
+    catch(boost::thread_interrupted&){
+        cout << "ZŁAPANY!" << endl;
+        pcap_breakloop(this->handler);
     }
 
-    this->buildJson("results");
+    Socket::sendToServer(this->buildJson("results"));
 
     return 0;
 }
 
 void Agent::callback(u_char *args, const struct pcap_pkthdr *packet_header, const u_char *packet_body) {
-    Agent* instance = (Agent*)args;
-    instance->packetInfo(packet_body, *packet_header);
+        Agent *instance = (Agent *) args;
+        instance->packetInfo(packet_body, *packet_header);
+        boost::this_thread::interruption_point();
 }
 
 void Agent::packetInfo(const u_char *packet_body, struct pcap_pkthdr packet_header) {
-    this->packet_counter++;
-    this->all_captured_length += (int)packet_header.caplen; //amount of data available
-    this->all_total_length += (int)packet_header.len; //actual length of packet
-
-    //Deprecated
-    if(NULL) {
-        struct ether_header *ethernet_header = (struct ether_header *) packet_body;
-
-        switch (ntohs(ethernet_header->ether_type)) {
-            case ETHERTYPE_IP:
-                this->ip_packet_counter++;
-                //std::cout << "packet with ip header" << std::endl;
-                break;
-            case ETHERTYPE_ARP:
-                this->arp_packet_counter++;
-                //std::cout << "packet with arp header" << std::endl;
-                break;
-            case ETHERTYPE_REVARP:
-                this->revarp_packet_counter++;
-                //std::cout << "packet with revarp header" << std::endl;
-                break;
-        }
+    //try {
+        this->packet_counter++;
+        this->all_captured_length += (int) packet_header.caplen; //amount of data available
+        this->all_total_length += (int) packet_header.len; //actual length of packet
+        /*boost::this_thread::interruption_point();
     }
-    //End of deprecated
+    catch(boost::thread_interrupted&){
+        cout << "ZŁAPANY!" << endl;
+        pcap_breakloop(this->handler);
+    }
+    */
 }
 
 void Agent::signalAlarm() {
@@ -231,8 +216,7 @@ void Agent::signalAlarm() {
         sleep(1);
         if(this->packet_counter >= this->alarm){
             std::cout << "Breaking pcap_loop: alarm" << std::endl;
-            this->buildJson("alarm");
-            //pcap_breakloop(this->handler); // change to : sendJson(string) when it's done
+            Socket::sendToServer(this->buildJson("alarm"));
             break;
         }
     }

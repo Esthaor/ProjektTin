@@ -44,8 +44,6 @@ public:
     string buildJson(string type);
 
 private:
-    //static Agent* instance;
-
     pcap_t* handler;
     string port;
     EndCondition end_condition;
@@ -60,18 +58,11 @@ private:
     int all_captured_length;
     int all_total_length;
 
-    //Deprecated
-    int ip_packet_counter;
-    int arp_packet_counter;
-    int revarp_packet_counter;
-    //End of deprecated
-
     char* findDevice();
     static void callback(u_char* args, const struct pcap_pkthdr* packet_header, const u_char* packet_body);
     void packetInfo(const u_char *packet, struct pcap_pkthdr packet_header);
     void signalAlarm();
     void stopSniffing();
-
 };
 
 #endif //PROJECT_AGENT_H
