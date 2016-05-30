@@ -62,6 +62,11 @@ void Agent::findMutex() {
     }
 }
 
+void Agent::rewriteChange(){
+    this->alarm = this->threadMutex->alarm;
+    this->end_condition_value = this->threadMutex->end_condition_value;
+}
+
 void Agent::displayInformation() {
     std::cout << "port: " << this->port << std::endl;
     switch(this->end_condition){
@@ -199,14 +204,18 @@ int Agent::sniff() {
             if(this->threadMutex->end_capture) {
                 std::cout << "gonna break pcap loop" << std::endl;
                 pcap_breakloop(this->handler);
-                this->threadMutex->setReaded();
             }
+            else
+                this->rewriteChange();
+            this->threadMutex->setReaded();
         }
         this->threadMutex->mutex.unlock();
         std::cout << "po unlocku w agencie" << std::endl;
     }
 
     Socket::sendToServer(this->buildJson("results"));
+
+    delete this->threadMutex;
 
     return 0;
 }
