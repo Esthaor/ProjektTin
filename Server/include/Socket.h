@@ -10,9 +10,13 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <string.h>
-#include <zconf.h>
+#include <unistd.h>
 #include <iostream>
 #include <string>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+
+
 using namespace std;
 
 class Socket
@@ -21,13 +25,27 @@ public:
     Socket();
     ~Socket();
 
-    int sockfd, newsockfd, portno, clilen;
-    struct sockaddr_in serv_addr, cli_addr;
-    char buffer[256];
-    int  n;
+
+    int opt;
+
+    int master_socket, new_socket;
+    int  addrlen;
+    int client_socket[30];
+    int nactive , rval , sd;
+    int max_sd;
+    struct sockaddr_in address;
+    struct timeval to;
+
+    char buffer[1025];
+
+    //socket descriptors
+    fd_set readfds;
+
+    int i;
 
     bool configureSocket();
     bool startCommunication(string json);
+
 };
 
 
