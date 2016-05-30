@@ -8,6 +8,7 @@
 ThreadMutex::ThreadMutex(int id){
     std::cout << "buduje mutex" << std::endl;
     this->id = id;
+    this->end_capture = false;
     this->to_read = false;
     this->end_condition_value = -1;
     this->alarm = -1;
