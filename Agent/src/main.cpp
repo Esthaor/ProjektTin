@@ -6,6 +6,10 @@
 #include <getopt.h>
 
 #include "../include/Agent.h"
+#include "../include/Socket.h"
+
+#define PORT 5010
+
 
 void help();
 
@@ -17,7 +21,7 @@ int main(int argc, char* argv[]) {
     Agent::EndCondition end_condition = Agent::NONE;
     int long_index = 0;
 
-    std::list<boost::thread*> thread_list;
+    //std::list<boost::thread*> thread_list;
 
     std::cout << "Hello, World2!" << std::endl;
 
@@ -54,16 +58,16 @@ int main(int argc, char* argv[]) {
                 exit(1);
         }
     }
+    Socket* socket = new Socket();
 
-    Agent *agent = new Agent(port, end_condition, end_condition_value, alarm);
+    if(argc > 1) {
+        Agent *agent = new Agent(port, end_condition, end_condition_value, alarm);
 
-    /*while(true){
-        if(agent->receiveJson()){
-            thread_list.push_back(new boost::thread(boost::bind(&Agent::sniff, agent)));
-        }
-    }*/
+        socket->thread_list.push_back(new boost::thread(boost::bind(&Agent::sniff, agent)));
+    }
 
-    agent->displayInformation();
+    socket->configureSocket(PORT);
+
 }
 
 void help() {
