@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
     if(argc > 1) {
         Agent *agent = new Agent(socket->next_capture_id, port, end_condition, end_condition_value, alarm);
         socket->thread_list.push_back(new boost::thread(boost::bind(&Agent::sniff, agent)));
-        socket->thread_list[socket->next_capture_id]->detach();
+        socket->mutex_list.push_back(new ThreadMutex(socket->next_capture_id));
         socket->next_capture_id++;
         string dowyslania = agent->buildJson("started");
         cout << "Taki zaraz powinien wyslac " << dowyslania << endl;
