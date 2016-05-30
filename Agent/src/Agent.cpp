@@ -12,7 +12,7 @@ Agent::Agent(){
     this->packet_counter = 0;
 }
 
-Agent::Agent(unsigned capture_id, string port, EndCondition end_condition, int end_condition_value, int alarm) {
+Agent::Agent(int capture_id, string port, EndCondition end_condition, int end_condition_value, int alarm) {
     //start_sniffing_time = NULL;
     thread_timeout = NULL;
     thread_alarm = NULL;
@@ -50,6 +50,16 @@ Agent::Agent(unsigned capture_id, string port, EndCondition end_condition, int e
 
 Agent::~Agent() {
 
+}
+
+void Agent::findMutex() {
+    for(int i = 0; i < Socket::mutex_list.size(); i++){
+        if(Socket::mutex_list[i]->id == this->capture_id) {
+            this->threadMutex = Socket::mutex_list[i];
+            std::cout << "znalazlem mutex " << i << " w agencie" << std::endl;
+            break;
+        }
+    }
 }
 
 void Agent::displayInformation() {
@@ -166,6 +176,7 @@ int Agent::sniff() {
         exit(4);
     }
 
+    this->findMutex();
     /* Grab packets */
     try {
         if (this->end_condition == PACKETS) {
@@ -181,9 +192,18 @@ int Agent::sniff() {
             pcap_loop(this->handler, -1, this->callback, (u_char *) this);
         }
     }
-    catch(boost::thread_interrupted&){
-        cout << "ZŁAPANY!" << endl;
-        pcap_breakloop(this->handler);
+    catch(boost::thread_interrupted&) {
+        this->threadMutex->mutex.lock();
+        if(this->threadMutex->to_read){
+            std::cout << "po lockow  agencie" << std::endl;
+            if(this->threadMutex->end_capture) {
+                std::cout << "gonna break pcap loop" << std::endl;
+                pcap_breakloop(this->handler);
+                this->threadMutex->setReaded();
+            }
+        }
+        this->threadMutex->mutex.unlock();
+        std::cout << "po unlocku w agencie" << std::endl;
     }
 
     Socket::sendToServer(this->buildJson("results"));
@@ -192,23 +212,15 @@ int Agent::sniff() {
 }
 
 void Agent::callback(u_char *args, const struct pcap_pkthdr *packet_header, const u_char *packet_body) {
-        Agent *instance = (Agent *) args;
-        instance->packetInfo(packet_body, *packet_header);
-        boost::this_thread::interruption_point();
+    Agent *instance = (Agent *) args;
+    instance->packetInfo(packet_body, *packet_header);
+    boost::this_thread::interruption_point();
 }
 
 void Agent::packetInfo(const u_char *packet_body, struct pcap_pkthdr packet_header) {
-    //try {
-        this->packet_counter++;
-        this->all_captured_length += (int) packet_header.caplen; //amount of data available
-        this->all_total_length += (int) packet_header.len; //actual length of packet
-        /*boost::this_thread::interruption_point();
-    }
-    catch(boost::thread_interrupted&){
-        cout << "ZŁAPANY!" << endl;
-        pcap_breakloop(this->handler);
-    }
-    */
+    this->packet_counter++;
+    this->all_captured_length += (int) packet_header.caplen; //amount of data available
+    this->all_total_length += (int) packet_header.len; //actual length of packet
 }
 
 void Agent::signalAlarm() {
