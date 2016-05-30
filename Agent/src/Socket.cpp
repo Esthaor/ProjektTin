@@ -8,7 +8,7 @@
 
 Socket::Socket()
 {
-
+    this->next_capture_id = 0;
 }
 
 Socket::~Socket()
@@ -95,6 +95,7 @@ void Socket::connection_handler (int socket_desc)
         string status = root.get<string>("status");
         if (status == "start") { //rozpoczęcie pomiaru
             cout << "status is start" << endl;
+            //pole id jest pomijane
             string port = root.get<string>("port");
             string endConditionString = root.get<string>("endCondition");
             Agent::EndCondition endCondition;
@@ -105,7 +106,8 @@ void Socket::connection_handler (int socket_desc)
             int endConditionValue = root.get<int>("endConditionValue");
             int alarm = root.get<int>("alarmValue");
             port.insert(0, "port ");
-            Agent *agent = new Agent(port, endCondition, endConditionValue, alarm);
+            Agent *agent = new Agent(this->next_capture_id, port, endCondition, endConditionValue, alarm);
+            this->next_capture_id++;
             agent->sniff();
         }
     }

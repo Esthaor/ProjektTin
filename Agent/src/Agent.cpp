@@ -12,10 +12,12 @@ Agent::Agent(){
     this->packet_counter = 0;
 }
 
-Agent::Agent(string port, EndCondition end_condition, int end_condition_value, int alarm) {
+Agent::Agent(unsigned capture_id, string port, EndCondition end_condition, int end_condition_value, int alarm) {
     //start_sniffing_time = NULL;
     thread_timeout = NULL;
     thread_alarm = NULL;
+
+    this->capture_id = capture_id;
 
     if(port == "port ")
         this->port += "port 80";
@@ -248,7 +250,8 @@ void Agent::stopSniffing() {
 string Agent::buildJson(string type) {
     ptree contents;
 
-    contents.put("type", type);
+    contents.put("status", type);
+    contents.put("id", this->capture_id);
     contents.put("port", this->port.substr(5));
     contents.put("alarmValue", this->alarm);
     contents.put("currentValue", this->all_total_length);

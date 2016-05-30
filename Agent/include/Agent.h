@@ -30,17 +30,18 @@ public:
         NONE
     };
 
+    unsigned capture_id;
+
     Agent();
     ~Agent();
 
-    Agent(string port, EndCondition end_condition, int end_condition_value, int alarm);
+    Agent(unsigned capture_id, string port, EndCondition end_condition, int end_condition_value, int alarm);
 
     void displayInformation();
     int showAllDevices();
-/*
-    bool receiveJson();
-*/
+
     int sniff();
+    string buildJson(string type);
 
 private:
     //static Agent* instance;
@@ -70,7 +71,6 @@ private:
     void packetInfo(const u_char *packet, struct pcap_pkthdr packet_header);
     void signalAlarm();
     void stopSniffing();
-    string buildJson(string type);
 
 };
 
