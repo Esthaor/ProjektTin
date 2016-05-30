@@ -111,6 +111,5 @@ void Socket::connection_handler (int socket_desc)
             agent->sniff();
         }
     }
-
     cout << "koncze watek" << endl;
 }

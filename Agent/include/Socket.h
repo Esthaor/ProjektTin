@@ -20,6 +20,7 @@
 using boost::property_tree::ptree;
 using boost::property_tree::read_json;
 using boost::property_tree::write_json;
+
 using namespace std;
 
 class Socket
