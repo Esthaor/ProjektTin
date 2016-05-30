@@ -141,6 +141,27 @@ void Socket::connection_handler (int socket_desc)
             this->next_capture_id++;
             agent->sniff();
         }
+
+        if (status == "change") { //rozpoczęcie pomiaru
+            cout << "status is change" << endl;
+            unsigned id = root.get<unsigned>("id");
+            string endConditionString = root.get<string>("endCondition");
+            Agent::EndCondition endCondition;
+            if(endConditionString == "time")
+                endCondition = Agent::TIME;
+            else if(endConditionString == "threshold")
+                endCondition = Agent::PACKETS;
+            int endConditionValue = root.get<int>("endConditionValue");
+            int alarm = root.get<int>("alarmValue");
+            //zmiana obiektu w watku
+        }
+
+        if (status == "stop") { //rozpoczęcie pomiaru
+            cout << "status is start" << endl;
+            unsigned id = root.get<unsigned>("id");
+            this->thread_list[id]->interrupt();
+        }
+
     }
     cout << "koncze watek" << endl;
 }
