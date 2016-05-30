@@ -224,22 +224,25 @@ void Agent::packetInfo(const u_char *packet_body, struct pcap_pkthdr packet_head
 
 void Agent::signalAlarm() {
     while(true){
+        sleep(1);
         if(this->packet_counter >= this->alarm){
             std::cout << "Breaking pcap_loop: alarm" << std::endl;
             this->buildJson("alarm");
-            pcap_breakloop(this->handler); // change to : sendJson(string) when it's done
+            //pcap_breakloop(this->handler); // change to : sendJson(string) when it's done
             break;
         }
     }
 }
 
 void Agent::stopSniffing() {
-    while(true)
+    while(true){
+        sleep(1);
         if(difftime(time(NULL), this->start_sniffing_time) >= (double)this->end_condition_value) {
             std::cout << "Breaking pcap_loop: timeout" << std::endl;
             pcap_breakloop(this->handler);
             break;
         }
+    }
 }
 
 string Agent::buildJson(string type) {
