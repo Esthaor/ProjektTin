@@ -32,9 +32,12 @@ public:
     int socket_descriptor, client_socket, port_number, c;
     struct sockaddr_in server, client;
 
+    unsigned next_capture_id;
+
+    static bool sendToServer(string json);
     bool configureSocket(int port);
     void connection_handler (int socket_desc);
-    std::list<boost::thread*> thread_list;
+    std::vector<boost::thread*> thread_list;
 };
 
 #endif //PROJEKTTIN_SOCKET_H
