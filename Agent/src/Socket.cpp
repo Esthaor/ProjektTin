@@ -50,7 +50,7 @@ bool Socket::sendToServer(string json)
 bool Socket::configureSocket(int port)
 {
     port_number = port;
-
+    int option = 1;
     /* Create a socket point */
     socket_descriptor = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -59,6 +59,7 @@ bool Socket::configureSocket(int port)
         cout << "ERROR creating socket!" << endl;
         return false;
     }
+    setsockopt(socket_descriptor, SOL_SOCKET, SO_REUSEADDR,(char*)&option,sizeof(option));
     cout << "Socket created" << endl;
 
     //Prepare the sockaddr_in structure
