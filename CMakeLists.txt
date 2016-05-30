@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-
 project(ProjektTin)
-
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 11)
 
