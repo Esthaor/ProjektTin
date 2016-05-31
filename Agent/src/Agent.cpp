@@ -186,10 +186,14 @@ int Agent::sniff() {
 
     Socket::sendToServer(this->buildJson("results"));
 
-    if(this->enable_alarms)
+    if(this->enable_alarms) {
+        this->thread_alarm->join();
         this->thread_alarm->interrupt();
-    if(this->end_condition == EndCondition::TIME)
+    }
+    if(this->end_condition == EndCondition::TIME) {
+        this->thread_timeout->join();
         this->thread_timeout->interrupt();
+    }
     delete this->threadMutex;
 
     return 0;
@@ -250,6 +254,7 @@ void Agent::signalAlarm() {
         }
     }
     catch(boost::thread_interrupted&){
+        std::cout << "koncze alarm thread o id: " << this->capture_id << std::endl;
         return;
     }
 }
@@ -267,6 +272,7 @@ void Agent::stopSniffing() {
         }
     }
     catch(boost::thread_interrupted&){
+        std::cout << "koncze timeout thread o id: " << this->capture_id << std::endl;
         return;
     }
 }

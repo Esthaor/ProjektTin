@@ -22,7 +22,3 @@ void ThreadMutex::fillData(std::string status, int end_condition_value, int alar
     this->end_condition_value = end_condition_value;
     this->alarm = alarm;
 }
-
-/*void ThreadMutex::setReaded() {
-    this->to_read = false;
-}*/
