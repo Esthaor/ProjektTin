@@ -16,16 +16,7 @@ Socket::~Socket()
 
 }
 
-std::vector<ThreadMutex*> Socket::mutex_list;// = NULL;
-
-ThreadMutex* Socket::findMutex(int id) {
-    for(int i = 0; i < this->mutex_list.size(); i++){
-        if(this->mutex_list[i]->id == id) {
-            std::cout << "znalazlem mutex " << i << " w socket" << std::endl;
-            return this->mutex_list[i];
-        }
-    }
-}
+std::unordered_map<int, ThreadMutex*> Socket::mutex_list;// = NULL;
 
 bool Socket::sendToServer(string json)
 {
@@ -147,16 +138,18 @@ void Socket::connection_handler (int socket_desc)
             int endConditionValue = root.get<int>("endConditionValue");
             int alarm = root.get<int>("alarmValue");
             port.insert(0, "port ");
-            Agent *agent = new Agent(this->next_capture_id, port, endCondition, endConditionValue, alarm);
-            this->thread_list.push_back(new boost::thread(boost::bind(&Agent::sniff, agent)));
-            this->mutex_list.push_back(new ThreadMutex(this->next_capture_id));
-            this->next_capture_id++;
 
+            Agent *agent = new Agent(this->next_capture_id, port, endCondition, endConditionValue, alarm);
+            //this->thread_list.push_back(new Socket::AgentThread(agent));
+            this->thread_list.insert(std::make_pair(this->next_capture_id, new Socket::AgentThread(this->next_capture_id, agent)));
+            this->mutex_list.insert(std::make_pair(this->next_capture_id, new ThreadMutex(this->next_capture_id)));
+            this->next_capture_id++;
         }
 
         if (status == "change") { //rozpoczęcie pomiaru
             cout << "status is change" << endl;
             int id = root.get<int>("id");
+            std::cout << "id from change json: " << id << std::endl;
             string endConditionString = root.get<string>("endCondition");
 
             int end_condition_value;
@@ -167,27 +160,21 @@ void Socket::connection_handler (int socket_desc)
 
             int alarm = root.get<int>("alarmValue");
 
-            ThreadMutex* threadMutex = this->findMutex(id);
+            ThreadMutex* threadMutex = this->mutex_list[id];//this->findMutex(id);
             threadMutex->mutex.lock();
             std::cout << "po locku w socket" << std::endl;
             threadMutex->fillData(status, end_condition_value, alarm);
             threadMutex->mutex.unlock();
             std::cout << "po unlocku w socket" << std::endl;
-            //zmiana obiektu w watku
-            this->thread_list[id]->interrupt();
         }
 
         if (status == "stop") { //rozpoczęcie pomiaru
             cout << "status is stop" << endl;
             int id = root.get<int>("id");
+            std::cout << "id: " << id << std::endl;
             cout << "poszedl interrupt" << endl;
-            ThreadMutex* threadMutex = this->findMutex(id);
-            threadMutex->mutex.lock();
-            std::cout << "po locku w socket" << std::endl;
-            threadMutex->fillData(status, 0, 0);
-            threadMutex->mutex.unlock();
-            std::cout << "po unlocku w socket" << std::endl;
-            this->thread_list[id]->interrupt();
+            std::cout << "znaleziono thread o id: " << this->thread_list[id]->id << std::endl;
+            this->thread_list[id]->thread_capture->interrupt();
         }
 
     }

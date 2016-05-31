@@ -10,7 +10,7 @@
 
 class ThreadMutex {
 public:
-    bool end_capture;
+    //bool end_capture;
     int end_condition_value;
     int alarm;
 
@@ -18,9 +18,10 @@ public:
     bool to_read;
     boost::mutex mutex;
 
+    int all_total_length;
+
     ThreadMutex(int id);
     void fillData(std::string status, int end_condition_value, int alarm);
-    void setReaded();
 };
 
 

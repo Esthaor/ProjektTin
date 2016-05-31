@@ -6,14 +6,12 @@
 #include "../include/Socket.h"
 
 Agent::Agent(){
-    //this->instance = this;
     this->port = -1;
     this->end_condition_value = -1;
     this->packet_counter = 0;
 }
 
 Agent::Agent(int capture_id, string port, EndCondition end_condition, int end_condition_value, int alarm) {
-    //start_sniffing_time = NULL;
     thread_timeout = NULL;
     thread_alarm = NULL;
 
@@ -45,26 +43,10 @@ Agent::Agent(int capture_id, string port, EndCondition end_condition, int end_co
     this->packet_counter = 0;
     this->all_captured_length = 0;
     this->all_total_length = 0;
-
 }
 
 Agent::~Agent() {
 
-}
-
-void Agent::findMutex() {
-    for(int i = 0; i < Socket::mutex_list.size(); i++){
-        if(Socket::mutex_list[i]->id == this->capture_id) {
-            this->threadMutex = Socket::mutex_list[i];
-            std::cout << "znalazlem mutex " << i << " w agencie" << std::endl;
-            break;
-        }
-    }
-}
-
-void Agent::rewriteChange(){
-    this->alarm = this->threadMutex->alarm;
-    this->end_condition_value = this->threadMutex->end_condition_value;
 }
 
 void Agent::displayInformation() {
@@ -181,40 +163,33 @@ int Agent::sniff() {
         exit(4);
     }
 
-    this->findMutex();
+    this->threadMutex = Socket::mutex_list[this->capture_id];
+
     /* Grab packets */
-    //try {
+    try {
         if (this->end_condition == PACKETS) {
             if (this->enable_alarms)
                 this->thread_alarm = new boost::thread(boost::bind(&Agent::signalAlarm, this));
-            pcap_loop(this->handler, this->end_condition_value, this->callback, (u_char *) this);
+            pcap_loop(this->handler, this->end_condition_value, this->callback, (u_char*)this);
         }
         else {
             this->start_sniffing_time = time(NULL);
             if (this->enable_alarms)
                 this->thread_alarm = new boost::thread(boost::bind(&Agent::signalAlarm, this));
             this->thread_timeout = new boost::thread(boost::bind(&Agent::stopSniffing, this));
-            pcap_loop(this->handler, -1, this->callback, (u_char *) this);
+            pcap_loop(this->handler, -1, this->callback, (u_char*)this);
         }
-    /*}
+    }
     catch(boost::thread_interrupted&) {
-        this->threadMutex->mutex.lock();
-        if(this->threadMutex->to_read){
-            std::cout << "po lockow  agencie" << std::endl;
-            if(this->threadMutex->end_capture) {
-                std::cout << "gonna break pcap loop" << std::endl;
-                pcap_breakloop(this->handler);
-            }
-            else
-                this->rewriteChange();
-            this->threadMutex->setReaded();
-        }
-        this->threadMutex->mutex.unlock();
-        std::cout << "po unlocku w agencie" << std::endl;
-    }*/
+        pcap_breakloop(this->handler);
+    }
 
     Socket::sendToServer(this->buildJson("results"));
 
+    if(this->enable_alarms)
+        this->thread_alarm->interrupt();
+    if(this->end_condition == EndCondition::TIME)
+        this->thread_timeout->interrupt();
     delete this->threadMutex;
 
     return 0;
@@ -223,57 +198,64 @@ int Agent::sniff() {
 void Agent::callback(u_char *args, const struct pcap_pkthdr *packet_header, const u_char *packet_body) {
     Agent *instance = (Agent *) args;
     instance->packetInfo(packet_body, *packet_header);
+    boost::this_thread::interruption_point();
 }
 
 void Agent::packetInfo(const u_char *packet_body, struct pcap_pkthdr packet_header) {
-    try {
-        this->packet_counter++;
-        this->all_captured_length += (int) packet_header.caplen; //amount of data available
-        this->all_total_length += (int) packet_header.len; //actual length of packet
-        boost::this_thread::interruption_point();
-    }
-    catch(boost::thread_interrupted&) {
-            this->threadMutex->mutex.lock();
-            if(this->threadMutex->to_read){
-                std::cout << "po lockow  agencie" << std::endl;
-                if(this->threadMutex->end_capture) {
-                    std::cout << "gonna break pcap loop" << std::endl;
-                    pcap_breakloop(this->handler);
-                }
-                else {
-                    this->rewriteChange();
+    this->packet_counter++;
+    this->all_captured_length += (int) packet_header.caplen; //amount of data available
+    this->all_total_length += (int) packet_header.len; //actual length of packet
 
-                    thread_alarm->interrupt();
-                    //pthread_cancel(&thread_alarm);
-                    this->thread_alarm = new boost::thread(boost::bind(&Agent::signalAlarm, this));
-
-                    thread_timeout->interrupt();
-                    this->thread_timeout = new boost::thread(boost::bind(&Agent::stopSniffing, this));
-                }
-                this->threadMutex->setReaded();
+    this->threadMutex->mutex.lock();
+    if(this->threadMutex->to_read){
+        std::cout << "po lockow  agencie" << std::endl;
+        if(this->end_condition == EndCondition::TIME){
+            if(this->end_condition_value != this->threadMutex->end_condition_value) {
+                std::cout << "zmieniam timeout" << std::endl;
+                this->end_condition_value = this->threadMutex->end_condition_value;
+                if(this->end_condition == EndCondition::TIME)
+                    this->thread_timeout->interrupt();
+                this->thread_timeout = new boost::thread(boost::bind(&Agent::stopSniffing, this));
             }
-            this->threadMutex->mutex.unlock();
-            std::cout << "po unlocku w agencie" << std::endl;
+        }
+        if(this->alarm != this->threadMutex->alarm){
+            std::cout << "przepisuje alarm" << std::endl;
+            this->alarm = this->threadMutex->alarm;
+            if(this->enable_alarms)
+                this->thread_alarm->interrupt();
+            this->enable_alarms  = true;
+            this->thread_alarm = new boost::thread(boost::bind(&Agent::signalAlarm, this));
+        }
+        this->threadMutex->to_read = false;
+        std::cout << "przed unlockiem w agencie" << std::endl;
     }
+    this->threadMutex->all_total_length = this->all_total_length;
+    this->threadMutex->mutex.unlock();
 }
 
 void Agent::signalAlarm() {
     try{
+        std::cout << "starting alarm thread" << std::endl;
         while(true){
             sleep(1);
-            boost::this_thread::interruption_requested();
-            if(this->packet_counter >= this->alarm){
+            this->threadMutex->mutex.lock();
+            this->all_total_length = this->threadMutex->all_total_length;
+            this->threadMutex->mutex.unlock();
+            if(this->all_total_length >= this->alarm){
                 std::cout << "Breaking pcap_loop: alarm" << std::endl;
                 Socket::sendToServer(this->buildJson("alarm"));
                 break;
             }
+            boost::this_thread::interruption_point();
         }
     }
     catch(boost::thread_interrupted&){
+        return;
     }
 }
 void Agent::stopSniffing() {
     try {
+        std::cout << "starting timeout thread" << std::endl;
         while (true) {
             sleep(1);
             if (difftime(time(NULL), this->start_sniffing_time) >= (double) this->end_condition_value) {
@@ -281,9 +263,11 @@ void Agent::stopSniffing() {
                 pcap_breakloop(this->handler);
                 break;
             }
+            boost::this_thread::interruption_point();
         }
     }
     catch(boost::thread_interrupted&){
+        return;
     }
 }
 
