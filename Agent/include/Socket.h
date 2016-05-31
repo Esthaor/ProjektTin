@@ -27,6 +27,7 @@ using boost::property_tree::write_json;
 
 using namespace std;
 
+
 class Socket
 {
 public:

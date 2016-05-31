@@ -1,0 +1,6 @@
+Instrukcja do instalacji wtyczki do wiresharka:
+
+1. Utworzyc katalog "~/.config/wireshark/plugins/", gdzie wireshark domyslnie
+   szuka skrptow uzytkownika.
+2. Wkleic plik sidnet.lua w nowo utworzony katalog
+3. Skrypt zaladuje sie automatycznie przy starcie wiresharka
