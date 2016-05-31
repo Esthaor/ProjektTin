@@ -15,16 +15,10 @@ ThreadMutex::ThreadMutex(int id){
 
 void ThreadMutex::fillData(std::string status, int end_condition_value, int alarm){
     std::cout << "wypeniam threadmutex danymi" << std::endl;
-    if(status == "stop")
-        end_capture = true;
-    else
+
     if(status != "change")
         return;
     this->to_read = true;
     this->end_condition_value = end_condition_value;
     this->alarm = alarm;
-}
-
-void ThreadMutex::setReaded() {
-    this->to_read = false;
 }
