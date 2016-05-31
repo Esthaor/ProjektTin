@@ -240,8 +240,16 @@ void Agent::packetInfo(const u_char *packet_body, struct pcap_pkthdr packet_head
                     std::cout << "gonna break pcap loop" << std::endl;
                     pcap_breakloop(this->handler);
                 }
-                else
+                else {
                     this->rewriteChange();
+
+                    thread_alarm->interrupt();
+                    //pthread_cancel(&thread_alarm);
+                    this->thread_alarm = new boost::thread(boost::bind(&Agent::signalAlarm, this));
+
+                    thread_timeout->interrupt();
+                    this->thread_timeout = new boost::thread(boost::bind(&Agent::stopSniffing, this));
+                }
                 this->threadMutex->setReaded();
             }
             this->threadMutex->mutex.unlock();
@@ -250,24 +258,32 @@ void Agent::packetInfo(const u_char *packet_body, struct pcap_pkthdr packet_head
 }
 
 void Agent::signalAlarm() {
-    while(true){
-        sleep(1);
-        if(this->packet_counter >= this->alarm){
-            std::cout << "Breaking pcap_loop: alarm" << std::endl;
-            Socket::sendToServer(this->buildJson("alarm"));
-            break;
+    try{
+        while(true){
+            sleep(1);
+            boost::this_thread::interruption_requested();
+            if(this->packet_counter >= this->alarm){
+                std::cout << "Breaking pcap_loop: alarm" << std::endl;
+                Socket::sendToServer(this->buildJson("alarm"));
+                break;
+            }
         }
     }
+    catch(boost::thread_interrupted&){
+    }
 }
-
 void Agent::stopSniffing() {
-    while(true){
-        sleep(1);
-        if(difftime(time(NULL), this->start_sniffing_time) >= (double)this->end_condition_value) {
-            std::cout << "Breaking pcap_loop: timeout" << std::endl;
-            pcap_breakloop(this->handler);
-            break;
+    try {
+        while (true) {
+            sleep(1);
+            if (difftime(time(NULL), this->start_sniffing_time) >= (double) this->end_condition_value) {
+                std::cout << "Breaking pcap_loop: timeout" << std::endl;
+                pcap_breakloop(this->handler);
+                break;
+            }
         }
+    }
+    catch(boost::thread_interrupted&){
     }
 }
 
