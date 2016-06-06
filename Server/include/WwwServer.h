@@ -10,10 +10,10 @@
 
 using namespace std;
 
-class wwwServer {
+class WwwServer {
 public:
-    wwwServer(){};
-    ~wwwServer(){};
+    WwwServer(){};
+    ~WwwServer(){};
     int wwwServerStart();
     static void handle_sum_call(struct mg_connection *nc, struct http_message *hm);
     static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);

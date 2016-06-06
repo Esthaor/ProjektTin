@@ -2,12 +2,12 @@
 // Created by grzegorz on 07.06.16.
 //
 
-#include "wwwServer.h"
+#include "WwwServer.h"
 
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
 
-void wwwServer::handle_sum_call(struct mg_connection *nc, struct http_message *hm) {
+void WwwServer::handle_sum_call(struct mg_connection *nc, struct http_message *hm) {
     char n1[100], n2[100];
     double result;
 
@@ -24,7 +24,7 @@ void wwwServer::handle_sum_call(struct mg_connection *nc, struct http_message *h
     mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
 }
 
-void wwwServer::ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
+void WwwServer::ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     struct http_message *hm = (struct http_message *) ev_data;
 
     switch (ev) {
@@ -45,7 +45,7 @@ void wwwServer::ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     }
 }
 
-int wwwServer::wwwServerStart()
+int WwwServer::wwwServerStart()
 {
     struct mg_mgr mgr;
     struct mg_connection *nc;

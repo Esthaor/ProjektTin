@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include "../include/Server.h"
-#include "wwwServer.h"
+#include "WwwServer.h"
 
 using namespace std;
 /*
