@@ -16,7 +16,7 @@ set(SERVER_SOURCE_FILES
         Server/src/Server.cpp
         Server/src/Socket.cpp
         Server/src/Database.cpp
-        Server/src/mongoose.c)
+        Server/src/mongoose.c Server/src/wwwServer.cpp Server/include/wwwServer.h)
 
 find_package(Boost COMPONENTS system thread REQUIRED)
 find_package(Threads REQUIRED)
