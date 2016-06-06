@@ -60,7 +60,7 @@ bool Socket::configureSocket()
 }
 
 
-bool Socket::startCommunication(string json)
+bool Socket::startCommunication()
 {
 
     if (listen(master_socket, 5) < 0)

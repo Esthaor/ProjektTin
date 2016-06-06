@@ -49,7 +49,7 @@ public:
     int i;
 
     bool configureSocket();
-    bool startCommunication(string json);
+    bool startCommunication();
     bool sendToAgent(string address, string json);
 
 
