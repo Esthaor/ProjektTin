@@ -145,6 +145,8 @@ void Socket::connection_handler (int socket_desc)
             this->thread_list.insert(std::make_pair(this->next_capture_id, new Socket::AgentThread(this->next_capture_id, agent)));
             this->mutex_list.insert(std::make_pair(this->next_capture_id, new ThreadMutex(this->next_capture_id)));
             this->next_capture_id++;
+            boost::thread* send_json_thread = new boost::thread(boost::bind(Socket::sendToServer, agent->buildJson("started")));
+            send_json_thread->join();
         }
 
         if (status == "change") { //rozpoczęcie pomiaru
