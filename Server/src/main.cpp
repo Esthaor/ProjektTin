@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include "../include/Server.h"
+#include "WwwServer.h"
 
 using namespace std;
 /*
@@ -20,7 +21,8 @@ int main()
 {
 
     //TODO: fopen pliku konfiguracyjnego, zapis do struktury danych
-
+    WwwServer* www = new WwwServer();
+    www->wwwServerStart();
 
     Server* server = new Server();
 
