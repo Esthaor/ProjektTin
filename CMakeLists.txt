@@ -8,12 +8,14 @@ set(AGENT_SOURCE_FILES
         Agent/src/main.cpp
         Agent/src/Agent.cpp
         Agent/src/Socket.cpp
-        Agent/src/ThreadMutex.cpp Agent/include/ThreadMutex.h Agent/src/ThreadMutex.cpp Agent/include/ThreadMutex.h)
+        Agent/src/ThreadMutex.cpp
+        Agent/src/ThreadMutex.cpp)
 
 set(SERVER_SOURCE_FILES
         Server/src/main.cpp
         Server/src/Server.cpp
         Server/src/Socket.cpp
+        Server/src/Database.cpp
         )
 
 find_package(Boost COMPONENTS system thread REQUIRED)

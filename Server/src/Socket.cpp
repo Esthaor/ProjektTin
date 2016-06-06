@@ -4,7 +4,7 @@
 
 #include "../include/Socket.h"
 
-#define PORT 5010
+#define PORT 5000
 #define MAX_CLIENTS 30
 
 Socket::Socket()
@@ -62,11 +62,6 @@ bool Socket::configureSocket()
 
 bool Socket::startCommunication(string json)
 {
-    int licznik = 20; //temp
-
-    //temp message
-    char *message = (char *)"Start sniffing";
-
 
     if (listen(master_socket, 5) < 0)
     {
@@ -78,9 +73,8 @@ bool Socket::startCommunication(string json)
     addrlen = sizeof(address);
     cout <<  "Waiting for connections ..." << endl;
 
-    while((licznik--) > 0)
+    while(1)
     {
-
 
         FD_ZERO(&readfds);
         FD_SET(master_socket, &readfds);
@@ -126,12 +120,12 @@ bool Socket::startCommunication(string json)
             cout << "New connection, socket fd:" << new_socket << ",  ip: " << inet_ntoa(address.sin_addr) << ", port : " << ntohs(address.sin_port) << endl;
 
             //send message
-            if( send(new_socket, message, strlen(message), 0) != strlen(message) )
+           /* if( send(new_socket, message, strlen(message), 0) != strlen(message) )
             {
                 perror("send");
             }
 
-            cout << "Message sent successfully" << endl;
+            cout << "Message sent successfully" << endl;*/
 
             //add new socket to array of sockets
             for (i = 0; i < MAX_CLIENTS; i++)
@@ -170,12 +164,63 @@ bool Socket::startCommunication(string json)
                     perror("reading stream message");
                 else
                 {
-                    cout << "-  " << sd << " ->   " << buffer << endl;
-                    //buffer[valread] = '\0';
+                    string inputBuffer(buffer, rval);
+                    istringstream is(inputBuffer);
+
+                    // Create a root
+                    ptree root;
+
+                    // Load the json file in this ptree
+                    cout << "reading JSON" << endl;
+                    read_json(is, root);
+                    //cout << "-  " << sd << " ->   " << buffer << endl;
+                    string status = root.get<string>("status");
+                    cout<<"Status = " << status << endl;
                 }
             }
         }
     }
+    return true;
+}
+
+
+bool Socket::sendToAgent(string address, string json)
+{
+    int socket_desc;
+    struct sockaddr_in agent;
+    char message[256];
+    int maxRetries = 10;
+    int retryTime = 30;
+
+    json.copy(message,json.length(),0);
+    socket_desc = socket(AF_INET , SOCK_STREAM , 0);
+    if (socket_desc == -1)
+    {
+        printf("Could not create socket!\n");
+    }
+    const char * ip = address.c_str();
+    agent.sin_addr.s_addr = inet_addr(ip); //adres serwera
+    agent.sin_family = AF_INET;
+    agent.sin_port = htons(5010);
+
+    int tries = 0;
+    while (connect(socket_desc , (struct sockaddr *)&agent , sizeof(agent)) < 0)
+    {
+        tries++;
+        if(tries > maxRetries) {
+            puts("Server unreachable, max retries count reached! JSON not sent!");
+            return false;
+        }
+        sleep(retryTime);
+        puts("Server unreachable, retrying in 30 seconds!\n");
+    }
+
+    if( send(socket_desc , message , strlen(message) , 0) < 0)
+    {
+        puts("Sending failed!\n");
+        return false;
+    }
+    cout << "JSON sent: " << json << endl;
     return true;
 }
 

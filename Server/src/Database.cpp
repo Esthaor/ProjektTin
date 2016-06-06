@@ -54,7 +54,7 @@ bool Database::create_table()
          "ALARM_VALUE        INT," \
          "CURRENT_VALUE        INT," \
          "DATETIME        TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL," \
-         " PRIMARY KEY (ID_MACHINE, ID_MEASUREMENT));";
+         "PRIMARY KEY (ID_MACHINE, ID_MEASUREMENT));";
 
 
         /* Execute SQL statement */
