@@ -23,6 +23,8 @@ bool Socket::sendToServer(string json)
     int socket_desc;
     struct sockaddr_in server;
     char message[256];
+    int maxRetries = 10;
+    int retryTime = 30;
 
     json.copy(message,json.length(),0);
     socket_desc = socket(AF_INET , SOCK_STREAM , 0);
@@ -34,10 +36,16 @@ bool Socket::sendToServer(string json)
     server.sin_family = AF_INET;
     server.sin_port = htons(5000);
 
-    if (connect(socket_desc , (struct sockaddr *)&server , sizeof(server)) < 0)
+    int tries = 0;
+    while (connect(socket_desc , (struct sockaddr *)&server , sizeof(server)) < 0)
     {
+        tries++;
+        if(tries > maxRetries) {
+            puts("Server unreachable, max retries count reached! JSON not sent!");
+            return false;
+        }
+        sleep(retryTime);
         puts("Server unreachable, retrying in 30 seconds!\n"); //TODO: retry
-        return false;
     }
 
     if( send(socket_desc , message , strlen(message) , 0) < 0)

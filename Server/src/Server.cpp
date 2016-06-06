@@ -4,9 +4,33 @@
 
 #include "../include/Server.h"
 #include "../include/Socket.h"
+#include "../include/Database.h"
+#include "../include/mongoose.h"
 
 Server::Server() {
+    //utworzenie bazy danych
+    Database* database = new Database();
+    database->open();
+    database->create_table();
 
+/*    database->insert(73488, 111, "zakonczony", 12344, 1234, 764 );
+    database->select_all();
+    database->update( "w realizacji" ,73488, 111);
+    database->select_all();
+    database->delete_row(73488, 111);*/
+
+    //odpalenie gniazda - nasłuch
+    Socket* socket = new Socket();
+    socket->configureSocket(); //listener
+
+    communicationThread = new boost::thread(boost::bind(&Socket::startCommunication, socket)); //nasłuch na połączenia
+    //TODO: odczyt ze struktury danych z Agentami do odpalenia pomiarów
+    //iteracja po liście Agentów i odpalenie wątku złożenia jsona i wysłania polecenia pomiaru dla każdego z nich
+
+
+    //TODO: odpalenie serwera WWW z klasy Webserver (do utworzenia)
+
+    database->close();
 }
 
 Server::~Server() {
@@ -37,11 +61,9 @@ string Server::writeJson(string status, int port, string endCondition, int endCo
 bool Server::sendJson(string json) {
 
 
-    Socket* socket = new Socket();
 
-    socket->configureSocket();
-    socket->startCommunication(json);
-    //    std::cout << "Wysłano JSON: " << json << std::endl;
+
+
 
     return true;
 }
