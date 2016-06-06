@@ -54,7 +54,7 @@ int WwwServer::wwwServerStart()
     mg_mgr_init(&mgr, NULL);
 
     *cp = '\0';
-    s_http_server_opts.document_root = "";
+    s_http_server_opts.document_root = ".";
 
     /* Set HTTP server options */
     nc = mg_bind(&mgr, s_http_port, ev_handler);
