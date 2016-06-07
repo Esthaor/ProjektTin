@@ -153,11 +153,17 @@ void Socket::connection_handler (int socket_desc)
             this->thread_list.insert(std::make_pair(this->next_capture_id, new Socket::AgentThread(this->next_capture_id, agent)));
             this->mutex_list.insert(std::make_pair(this->next_capture_id, new ThreadMutex(this->next_capture_id)));
             this->next_capture_id++;
+            boost::thread* send_json_thread = new boost::thread(boost::bind(Socket::sendToServer, agent->buildJson("started")));
+            send_json_thread->join();
         }
 
         if (status == "change") { //rozpoczęcie pomiaru
             cout << "status is change" << endl;
             int id = root.get<int>("id");
+            if((id >= this->next_capture_id) || (id < 0)){
+                std::cout << "wrong id: " << id << std::endl;
+                return;
+            }
             std::cout << "id from change json: " << id << std::endl;
             string endConditionString = root.get<string>("endCondition");
 
@@ -170,6 +176,7 @@ void Socket::connection_handler (int socket_desc)
             int alarm = root.get<int>("alarmValue");
 
             ThreadMutex* threadMutex = this->mutex_list[id];//this->findMutex(id);
+
             threadMutex->mutex.lock();
             std::cout << "po locku w socket" << std::endl;
             threadMutex->fillData(status, end_condition_value, alarm);
@@ -180,6 +187,10 @@ void Socket::connection_handler (int socket_desc)
         if (status == "stop") { //rozpoczęcie pomiaru
             cout << "status is stop" << endl;
             int id = root.get<int>("id");
+            if((id >= this->next_capture_id) || (id < 0)){
+                std::cout << "wrong id: " << id << std::endl;
+                return;
+            }
             std::cout << "id: " << id << std::endl;
             cout << "poszedl interrupt" << endl;
             std::cout << "znaleziono thread o id: " << this->thread_list[id]->id << std::endl;

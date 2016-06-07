@@ -11,6 +11,7 @@ ThreadMutex::ThreadMutex(int id){
     this->to_read = false;
     this->end_condition_value = -1;
     this->alarm = -1;
+    this->all_total_length = 0;
 }
 
 void ThreadMutex::fillData(std::string status, int end_condition_value, int alarm){
