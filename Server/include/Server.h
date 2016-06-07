@@ -12,6 +12,7 @@
 #include <netinet/in.h>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/thread.hpp>
 #include <string>
 
 using boost::property_tree::ptree;
@@ -27,6 +28,7 @@ private:
     int msgsock;
     char buffer[1024];
     int rval;
+    boost::thread* communicationThread;
 
 public:
     Server();

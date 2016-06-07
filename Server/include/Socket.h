@@ -15,7 +15,12 @@
 #include <string>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
+using boost::property_tree::ptree;
+using boost::property_tree::read_json;
+using boost::property_tree::write_json;
 
 using namespace std;
 
@@ -44,7 +49,9 @@ public:
     int i;
 
     bool configureSocket();
-    bool startCommunication(string json);
+    bool startCommunication();
+    bool sendToAgent(string address, string json);
+
 
 };
 

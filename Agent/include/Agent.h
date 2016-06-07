@@ -10,7 +10,6 @@
 #include <boost/thread.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-//#include <boost/date_time/local_time/local_date_time.hpp>
 #include <ctime>
 #include <string>
 #include <pcap.h>

@@ -4,25 +4,25 @@
 
 #include <iostream>
 #include "../include/Server.h"
-#include "../include/Database.h"
+#include "WwwServer.h"
 
 using namespace std;
+/*
+static const char *s_http_port = "8000";
+static struct mg_serve_http_opts s_http_server_opts;
+
+static void ev_handler(struct mg_connection *nc, int ev, void *p) {
+    if (ev == MG_EV_HTTP_REQUEST) {
+        mg_serve_http(nc, (struct http_message *) p, s_http_server_opts);
+    }
+}*/
 
 int main()
 {
-/*
-    Database* database = new Database();
-    database->open();
-    database->create_table();
-    database->insert(73488, 111, "zakonczony", 12344, 1234, 764 );
-    database->select_all();
-    database->update( "w realizacji" ,73488, 111);
-    database->select_all();
-   database->delete_row(73488, 111);
 
-
-    database->close();
-    */
+    //TODO: fopen pliku konfiguracyjnego, zapis do struktury danych
+    WwwServer* www = new WwwServer();
+    www->wwwServerStart();
 
     Server* server = new Server();
 
