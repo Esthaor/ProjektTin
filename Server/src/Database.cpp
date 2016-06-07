@@ -307,7 +307,7 @@ bool Database::update(string status, int id_machine, int id_measurement, int ala
     string s_alarmValue = oss.str();
     oss.str("");
 
-    oss << "" << id_measurement;
+    oss << "" << currentValue;
     string s_currentValue = oss.str();
     oss.str("");
 
@@ -315,6 +315,39 @@ bool Database::update(string status, int id_machine, int id_measurement, int ala
 
     /* Create merged SQL statement */
     sql_temp = "UPDATE STATISTICS set STATUS = '" + status + "', ALARM_VALUE = " + s_alarmValue + ", CURRENT_VALUE = " + s_currentValue + "  where ID_MACHINE = " + s_id_machine + " AND ID_MEASUREMENT = " + s_id_measurement + " ; ";
+    sql = sql_temp.c_str();
+
+    /* Execute SQL statement */
+    rc = sqlite3_exec(db, sql, callback, (void*)data, &zErrMsg);
+    if( rc != SQLITE_OK )
+    {
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+        return false;
+    }
+}
+
+bool Database::update2(string status, int id_machine, int id_measurement, int alarmValue)
+{
+    zErrMsg = 0;
+    data = "Callback function called";
+
+    oss << "" << id_machine;
+    string s_id_machine = oss.str();
+    oss.str("");
+
+    oss << "" << id_measurement;
+    string s_id_measurement = oss.str();
+    oss.str("");
+
+    oss << "" << alarmValue;
+    string s_alarmValue = oss.str();
+    oss.str("");
+
+
+
+    /* Create merged SQL statement */
+    sql_temp = "UPDATE STATISTICS set STATUS = '" + status + "', ALARM_VALUE = " + s_alarmValue + "  where ID_MACHINE = " + s_id_machine + " AND ID_MEASUREMENT = " + s_id_measurement + " ; ";
     sql = sql_temp.c_str();
 
     /* Execute SQL statement */

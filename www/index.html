@@ -123,6 +123,7 @@
                     dataType: 'json',
                     data: {ip: $('#ips').val(), port: $('#port').val(), type: $('#condition').val(), conVal: $('#conVal').val(), alVal: $('#alVal').val()},
                     success: function (json) {
+                        window.setTimeout('location.reload()', 2000);
                     }
                 });
                 $.ajax({
@@ -145,6 +146,7 @@
                     dataType: 'json',
                     data: {ip: $('#newmachineip').val()},
                     success: function (json) {
+                        $(document).reload();
                     }
                 });
                 $.ajax({
@@ -167,6 +169,7 @@
                     dataType: 'json',
                     data: {ip: $('#measurementsEnd').val(), id: $('#endID').val()},
                     success: function (json) {
+                        window.setTimeout('location.reload()', 2000);
                     }
                 });
                 $.ajax({
@@ -187,8 +190,9 @@
                     url: '/api/v1/editmeas',
                     method: 'POST',
                     dataType: 'json',
-                    data: {ip: $('#ipsEdit').val(),id: $('#idEdit').val(), port: $('#portEdit').val(), type: $('#typeEdit').val(), conVal: $('#convaledit').val(), alVal: $('#alvaledit').val()},
+                    data: {ip: $('#ipsEdit').val(),id: $('#idEdit').val(), type: $('#typeEdit').val(), conVal: $('#convaledit').val(), alVal: $('#alvaledit').val()},
                     success: function (json) {
+                        $(document).reload();
                     }
                 });
                 $.ajax({
@@ -254,7 +258,7 @@
             <select id="condition" title="Condition">
                 <option value="threshold">threshold</option>
                 <option value="time">time</option>
-                <option value="nocondition">no condition *</option>
+                <<!--option value="nocondition">no condition *</option>-->
             </select>
             <input id="conVal" title="Condition value" placeholder="Condition value"/>
             <input id="alVal" title="Alarm value" placeholder="Alarm value"/>
@@ -275,11 +279,11 @@
                 <option value="192.168.1">192.168.1</option>
             </select>
             <input id="idEdit"title="Measurement id" placeholder="Measurement ID"/>
-            <input id="portEdit" title="Port" placeholder="Port"/>
-            <select id="typeEdit" title="Condition">
-                <option value="threshold">threshold</option>
+            <!--<input id="portEdit" title="Port" placeholder="Port"/>-->
+            <select id="typeEdit" title="Condition" style="display: none">
+                <!--<option value="threshold">threshold</option>-->
                 <option value="time">time</option>
-                <option value="nocondition">no condition *</option>
+                <!--<option value="nocondition">no condition *</option>-->
             </select>
             <input id="convaledit" title="Condition value" placeholder="Condition value"/>
             <input id="alvaledit" title="Alarm value" placeholder="Alarm value"/>
