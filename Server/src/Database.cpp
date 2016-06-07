@@ -10,7 +10,7 @@
 
 vector<string> Database::selectAllWWWresult;
 int Database::agentExists=-1;
-string Database::ipaddr;
+string Database::mid;
 
 Database::Database()
 {
@@ -290,7 +290,7 @@ bool Database::delete_row(int id_machine, int id_measurement)
     return true;
 }
 
-bool Database::update(string status, int id_machine, int id_measurement)
+bool Database::update(string status, int id_machine, int id_measurement, int alarmValue, int currentValue)
 {
     zErrMsg = 0;
     data = "Callback function called";
@@ -303,9 +303,18 @@ bool Database::update(string status, int id_machine, int id_measurement)
     string s_id_measurement = oss.str();
     oss.str("");
 
+    oss << "" << alarmValue;
+    string s_alarmValue = oss.str();
+    oss.str("");
+
+    oss << "" << id_measurement;
+    string s_currentValue = oss.str();
+    oss.str("");
+
+
 
     /* Create merged SQL statement */
-    sql_temp = "UPDATE STATISTICS set STATUS = '" + status + "'  where ID_MACHINE = " + s_id_machine + " AND ID_MEASUREMENT = " + s_id_measurement + " ; ";
+    sql_temp = "UPDATE STATISTICS set STATUS = '" + status + "', ALARM_VALUE = " + s_alarmValue + ", CURRENT_VALUE = " + s_currentValue + "  where ID_MACHINE = " + s_id_machine + " AND ID_MEASUREMENT = " + s_id_measurement + " ; ";
     sql = sql_temp.c_str();
 
     /* Execute SQL statement */
@@ -340,7 +349,7 @@ int Database::dallback(void *NotUsed, int argc, char **argv, char **azColName)
         printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
     }
     printf("\n");
-    ipaddr = argv[0];
+    mid = argv[0];
 
     //agentExists = stoi(argv[0]);
     return 0;
@@ -414,9 +423,9 @@ int Database::check_exists_value()
     return result;
 }
 
-string Database::check_ip_value()
+string Database::check_machine_id()
 {
-    string result = ipaddr;
-    ipaddr.clear();
+    string result = mid;
+    mid.clear();
     return result;
 }

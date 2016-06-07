@@ -29,7 +29,7 @@ int Server::init() {
     //database->insert_agents(6, "192.168.1.10");
     database->select_all();
     database->select_ip("192.168.1.10");
-    cout << database->ipaddr << endl;
+    cout << database->mid << endl;
     //database->check_if_exists_agents("192.168.1.1");
     //cout << "czy istnieje? " << database->agentExists << endl;
 
@@ -74,6 +74,23 @@ string Server::writeJson(string status, int port, string endCondition, int endCo
     return json;
 }
 
+string Server::writeSmallJson(string status, int id) {
+
+    ptree contents;
+
+    // Dodanie elementów JSONa
+    contents.put("status", status);
+    contents.put("id", id);
+
+    // Formowanie gotowego stringa
+    std::ostringstream buf;
+    write_json(buf, contents, false);
+    string json = buf.str();
+
+    return json;
+}
+
+
 bool Server::sendJSON(string ip, string json) {
 
 
@@ -107,9 +124,20 @@ void Server::sendMeasurements() {
         WwwServer::database->check_if_exists_agents(measurements[i].ip);
         if((WwwServer::database->check_exists_value())==0) {
             cout << "nie istnieje" << endl;
-            WwwServer::database->insert_agents(nextAgentID, measurements[i].ip);
+            WwwServer::database->insert_agents(nextAgentID++, measurements[i].ip);
         }
 
-        //sleep(1);
+        sleep(1);
+    }
+}
+
+void Server::sendMeasurement(string ip, string json) {
+    cout<<"sending"<<endl;
+    boost::thread(Socket::sendToAgent, ip, json);
+
+    WwwServer::database->check_if_exists_agents(ip);
+    if((WwwServer::database->check_exists_value())==0) {
+        cout << "nie istnieje" << endl;
+        WwwServer::database->insert_agents(nextAgentID++, ip);
     }
 }
