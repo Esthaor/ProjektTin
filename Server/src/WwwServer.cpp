@@ -34,7 +34,7 @@ void WwwServer::handle_print_list(struct mg_connection *nc, struct http_message 
 
     string data = database->select_allWWW();
 
-    response += "\"<table><tbody><tr><th>ID_MACHINE</th><th>ID_MEASUREMENT</th><th>STATUS</th><th>PORT</th><th>ALARM_VALUE</th><th>CURRENT_VALUE</th><th>DATETIME</th></tr>" + data + "</tbody></table>\"}";
+    response += "\"<table><tbody><tr><th>IP</th><th>Measurement ID</th><th>Status</th><th>Port</th><th>Alarm value</th><th>Current value</th><th>Date</th></tr>" + data + "</tbody></table>\"}";
     const char *cresponse = response.c_str();
     mg_printf_http_chunk(nc, cresponse);
     mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */

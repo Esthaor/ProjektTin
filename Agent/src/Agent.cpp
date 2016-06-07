@@ -284,13 +284,33 @@ void Agent::checkCapture() {
 string Agent::buildJson(string type) {
     ptree contents;
 
-    contents.put("status", type);
-    contents.put("id", this->capture_id);
-    contents.put("port", this->port.substr(5));
-    contents.put("alarmValue", this->alarm);
-    contents.put("currentValue", this->all_total_length);
-    contents.put("datetime", std::time(NULL));
-
+    if(type == "started") {
+        contents.put("status", type);
+        contents.put("id", this->capture_id);
+        contents.put("port", this->port.substr(5));
+        switch(this->end_condition) {
+            case PACKETS:
+                contents.put("endCondition", "threshold");
+                break;
+            case TIME:
+                contents.put("endCondition", "time");
+                break;
+            case NONE:
+                contents.put("endCondition", "nocondition");
+                break;
+        }
+        contents.put("endConditionValue", this->end_condition_value);
+        contents.put("alarmValue", this->alarm);
+        contents.put("currentValue", this->all_total_length);
+        contents.put("datetime", std::time(NULL));
+    }else {
+        contents.put("status", type);
+        contents.put("id", this->capture_id);
+        contents.put("port", this->port.substr(5));
+        contents.put("alarmValue", this->alarm);
+        contents.put("currentValue", this->all_total_length);
+        contents.put("datetime", std::time(NULL));
+    }
     std::ostringstream buf;
     write_json(buf, contents, false);
     string json = buf.str();

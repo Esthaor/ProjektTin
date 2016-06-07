@@ -38,12 +38,23 @@ public:
     bool create_table_agents();
     int insert(int id_machine, int id_measurement, string status, int port, int alarm_value, int current_value);
     int insert_agents(int id_machine, string ip);
+    int check_if_exists_agents(string ip);
+
     bool select_all();
     bool delete_row(int id_machine, int id_measurement);
     bool update(string status, int id_machine, int id_measurement);
+    int select_ip(string ip);
     static int callback(void *NotUsed, int argc, char **argv, char **azColName);
+    static int dallback(void *NotUsed, int argc, char **argv, char **azColName);
     static int callbackWWW(void *NotUsed, int argc, char **argv, char **azColName);
+
     string select_allWWW();
+    static int agentExists;
+    int check_exists_value();
+    static string ipaddr;
+    string check_ip_value();
+
+
 };
 
 

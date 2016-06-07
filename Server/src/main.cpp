@@ -34,7 +34,6 @@ int main()
             string port;
             string endCondition;
             string endConditionValue;
-            string alarmType;
             string alarmValue;
             stringstream line;
             line << str;
@@ -54,9 +53,6 @@ int main()
                 } else if (endConditionValue.empty()) {
                     endConditionValue = substr;
                     endConditionValue.erase (std::remove (endConditionValue.begin(), endConditionValue.end(), ' '), endConditionValue.end());
-                } else if (alarmType.empty()) {
-                    alarmType = substr;
-                    alarmType.erase (std::remove (alarmType.begin(), alarmType.end(), ' '), alarmType.end());
                 } else if (alarmValue.empty()) {
                     alarmValue = substr;
                     alarmValue.erase (std::remove (alarmValue.begin(), alarmValue.end(), ' '), alarmValue.end());
@@ -64,7 +60,7 @@ int main()
 
             }
 
-            server->addToMeasurements(ip, port, endCondition, endConditionValue, alarmType, alarmValue);
+            server->addToMeasurements(ip, port, endCondition, endConditionValue, alarmValue);
 
         }
 
