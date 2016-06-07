@@ -21,8 +21,6 @@ int main()
 {
 
     //TODO: fopen pliku konfiguracyjnego, zapis do struktury danych
-    WwwServer* www = new WwwServer();
-    www->wwwServerStart();
 
     Server* server = new Server();
 
