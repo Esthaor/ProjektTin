@@ -52,8 +52,8 @@ private:
     EndCondition end_condition;
     int end_condition_value;
     time_t start_sniffing_time;
-    boost::thread* thread_timeout;
-    boost::thread* thread_alarm;
+    boost::thread* thread_capture_check;
+    boost::thread* thread_change_data;
     bool enable_alarms;
     int alarm;
 
@@ -64,7 +64,7 @@ private:
     char* findDevice();
     static void callback(u_char* args, const struct pcap_pkthdr* packet_header, const u_char* packet_body);
     void packetInfo(const u_char *packet, struct pcap_pkthdr packet_header);
-    //void signalAlarm();
+    void rewriteData();
     void checkCapture();
 };
 
