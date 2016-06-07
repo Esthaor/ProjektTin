@@ -180,7 +180,7 @@ bool Socket::startCommunication()
                     string status = root.get<string>("status");
                     string ip = inet_ntoa(address.sin_addr);
                     WwwServer::database->select_ip(ip);
-                    int machineID = stoi(WwwServer::database->check_machine_id());
+                    int machineID = WwwServer::database->check_machine_id();
                     int id = root.get<int>("id");
                     int port = root.get<int>("port");
                     int alarmValue = root.get<int>("alarmValue");
