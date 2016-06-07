@@ -165,21 +165,16 @@ int Agent::sniff() {
     this->threadMutex = Socket::mutex_list[this->capture_id];
 
     /* Grab packets */
-    try {
-        this->start_sniffing_time = time(NULL);
-        this->thread_capture_check = new boost::thread(boost::bind(&Agent::checkCapture, this));
-        this->thread_change_data = new boost::thread(boost::bind(&Agent::rewriteData, this));
+    this->start_sniffing_time = time(NULL);
+    this->thread_capture_check = new boost::thread(boost::bind(&Agent::checkCapture, this));
+    this->thread_change_data = new boost::thread(boost::bind(&Agent::rewriteData, this));
 
-        int packets_limit = -1;
+    int packets_limit = -1;
 
-        if(this->end_condition == Agent::EndCondition::PACKETS)
-            packets_limit = this->end_condition_value;
+    if(this->end_condition == Agent::EndCondition::PACKETS)
+        packets_limit = this->end_condition_value;
 
-        pcap_loop(this->handler, packets_limit, this->callback, (u_char*)this);
-    }
-    catch(boost::thread_interrupted&) {
-        pcap_breakloop(this->handler);
-    }
+    pcap_loop(this->handler, packets_limit, this->callback, (u_char*)this);
 
     Socket::sendToServer(this->buildJson("results"));
 
@@ -197,18 +192,17 @@ int Agent::sniff() {
 void Agent::callback(u_char *args, const struct pcap_pkthdr *packet_header, const u_char *packet_body) {
     Agent *instance = (Agent *) args;
     instance->packetInfo(packet_body, *packet_header);
-    boost::this_thread::interruption_point();
 }
 
 void Agent::packetInfo(const u_char *packet_body, struct pcap_pkthdr packet_header) {
-    this->threadMutex->mutex.lock();
-    {
-        this->packet_counter++;
-        this->all_captured_length += (int) packet_header.caplen; //amount of data available
-        this->threadMutex->all_total_length = this->all_total_length;
-        this->all_total_length += (int) packet_header.len; //actual length of packet
-    }
-    this->threadMutex->mutex.unlock();
+        this->threadMutex->mutex.lock();
+        {
+            this->packet_counter++;
+            this->all_captured_length += (int) packet_header.caplen; //amount of data available
+            this->threadMutex->all_total_length = this->all_total_length;
+            this->all_total_length += (int) packet_header.len; //actual length of packet
+        }
+        this->threadMutex->mutex.unlock();
 }
 
 void Agent::rewriteData() {
@@ -268,6 +262,13 @@ void Agent::checkCapture() {
                         pcap_breakloop(this->handler);
                         break;
                     }
+                }
+
+                if(this->threadMutex->stop){
+                    std::cout << "Breaking pcap_loop: stop" << std::endl;
+                    pcap_breakloop(this->handler);
+                    this->threadMutex->stop = false;
+                    break;
                 }
             }
             this->threadMutex->mutex.unlock();

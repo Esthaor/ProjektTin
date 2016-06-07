@@ -49,6 +49,7 @@ public:
     static int callbackWWW(void *NotUsed, int argc, char **argv, char **azColName);
 
     string select_allWWW();
+    vector<string> select_allAgentsWWW();
     static int agentExists;
     int check_exists_value();
     static string mid;
