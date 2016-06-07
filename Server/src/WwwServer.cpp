@@ -8,19 +8,76 @@ static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
 Database* WwwServer::database;
 
-void WwwServer::handle_sum_call(struct mg_connection *nc, struct http_message *hm) {
-    char n1[100], n2[100];
+void WwwServer::handle_add_measurment(struct mg_connection *nc, struct http_message *hm) {
+    char ip[100], port[100], type[100], conVal[100], alVal[100];
     double result;
 
     /* Get form variables */
-    mg_get_http_var(&hm->body, "n1", n1, sizeof(n1));
-    mg_get_http_var(&hm->body, "n2", n2, sizeof(n2));
+    mg_get_http_var(&hm->body, "ip", ip, sizeof(ip));
+    mg_get_http_var(&hm->body, "port", port, sizeof(port));
+    mg_get_http_var(&hm->body, "type", type, sizeof(type));
+    mg_get_http_var(&hm->body, "conVal", conVal, sizeof(conVal));
+    mg_get_http_var(&hm->body, "alVal", alVal, sizeof(alVal));
 
     /* Send headers */
     mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
 
-    /* Compute the result and send it back as a JSON object */
-    result = strtod(n1, NULL) + strtod(n2, NULL);
+    // TODO: Dodać tutaj dodawanie pomiaru z danych z jsona
+
+    mg_printf_http_chunk(nc, "{ \"result\": %lf }", result);
+    mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
+}
+
+void WwwServer::handle_add_machine(struct mg_connection *nc, struct http_message *hm) {
+    char ip[100];
+    double result;
+
+    /* Get form variables */
+    mg_get_http_var(&hm->body, "ip", ip, sizeof(ip));
+
+    /* Send headers */
+    mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
+
+    // TODO: Dodać tutaj dodawanie maszyny z danych z jsona
+
+    mg_printf_http_chunk(nc, "{ \"result\": %lf }", result);
+    mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
+}
+
+void WwwServer::handle_end_measurement(struct mg_connection *nc, struct http_message *hm) {
+    char ip[100], id[100];
+    double result;
+
+    /* Get form variables */
+    mg_get_http_var(&hm->body, "ip", ip, sizeof(ip));
+    mg_get_http_var(&hm->body, "id", id, sizeof(id));
+
+    /* Send headers */
+    mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
+
+    // TODO: Dodać tutaj kończenie pomiaru
+
+    mg_printf_http_chunk(nc, "{ \"result\": %lf }", result);
+    mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
+}
+
+void WwwServer::handle_edit_measurement(struct mg_connection *nc, struct http_message *hm) {
+    char ip[100],id[100], port[100], type[100], conVal[100], alVal[100];
+    double result;
+
+    /* Get form variables */
+    mg_get_http_var(&hm->body, "ip", ip, sizeof(ip));
+    mg_get_http_var(&hm->body, "id", ip, sizeof(ip));
+    mg_get_http_var(&hm->body, "port", port, sizeof(port));
+    mg_get_http_var(&hm->body, "type", type, sizeof(type));
+    mg_get_http_var(&hm->body, "conVal", conVal, sizeof(conVal));
+    mg_get_http_var(&hm->body, "alVal", alVal, sizeof(alVal));
+
+    /* Send headers */
+    mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
+
+    // TODO: Dodać tutaj edycje pomiaru z danych z jsona
+
     mg_printf_http_chunk(nc, "{ \"result\": %lf }", result);
     mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
 }
@@ -45,10 +102,16 @@ void WwwServer::ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 
     switch (ev) {
         case MG_EV_HTTP_REQUEST:
-            if (mg_vcmp(&hm->uri, "/api/v1/sum") == 0) {
-                handle_sum_call(nc, hm); /* Handle RESTful call */
+            if (mg_vcmp(&hm->uri, "/api/v1/addmeas") == 0) {
+                handle_add_measurment(nc, hm); /* Handle RESTful call */
             } else if (mg_vcmp(&hm->uri, "/api/v1/lista") == 0) {
                 handle_print_list(nc, hm);
+            } else if (mg_vcmp(&hm->uri, "/api/v1/addmach") == 0) {
+                handle_add_machine(nc, hm);
+            } else if (mg_vcmp(&hm->uri, "/api/v1/endmeas") == 0) {
+                handle_end_measurement(nc, hm);
+            } else if (mg_vcmp(&hm->uri, "/api/v1/editmeas") == 0) {
+                handle_edit_measurement(nc, hm);
             } else {
                 mg_serve_http(nc, hm, s_http_server_opts); /* Serve static content */
             }

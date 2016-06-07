@@ -7,48 +7,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <style type="text/css">
         table {
-            border:0px;
-            border-collapse:collapse;
-            border-spacing:0px;
+            border: 0px;
+            border-collapse: collapse;
+            border-spacing: 0px;
             width: 100%;
         }
 
         input {
-            border-radius:10px;
+            border-radius: 5px;
             margin: 4px;
         }
 
-        td,img {
-            padding:0px;
-            border-width:0px;
-            margin:0px;
+        select {
+            border-radius: 5px;
+            margin: 4px;
+            background-color: white;
+            border: 1px solid lightgray;
+        }
+
+        td, img {
+            padding: 0px;
+            border-width: 0px;
+            margin: 0px;
         }
 
         table {
             border-collapse: collapse;
         }
+
         td, th {
             padding: 3px;
         }
+
         table td, table th {
             border: 1px solid #d4d4d4;
         }
+
         table tr:first-child th {
             border-top: 0;
         }
+
         table tr:last-child td {
             border-bottom: 0;
         }
+
         table tr td:first-child,
         table tr th:first-child {
             border-left: 0;
         }
+
         table tr td:last-child,
         table tr th:last-child {
             border-right: 0;
         }
 
-        tr:hover {background-color: #f5f5f5}
+        tr:hover {
+            background-color: #f5f5f5
+        }
+
         * {
             outline: none;
         }
@@ -100,14 +116,80 @@
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
     <script language="javascript" type="text/javascript">
         jQuery(function () {
-            $(document).on('keyup', '#n1, #n2', function () {
+            $(document).on('click', '#pomiar', function () {
                 $.ajax({
-                    url: '/api/v1/sum',
+                    url: '/api/v1/addmeas',
                     method: 'POST',
                     dataType: 'json',
-                    data: {n1: $('#n1').val(), n2: $('#n2').val()},
+                    data: {ip: $('#ips').val(), port: $('#port').val(), type: $('#condition').val(), conVal: $('#conVal').val(), alVal: $('#alVal').val()},
                     success: function (json) {
-                        $('#result').html(json.result);
+                    }
+                });
+                $.ajax({
+                    url: '/api/v1/lista',
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (json) {
+                        $('#tabelka').html(json.data);
+                        $("tr").attr("align", "left");
+                        $("table").attr("style", "max-width: 85%; margin: 10px;");
+                    }
+                });
+            });
+        });
+        jQuery(function () {
+            $(document).on('click', '#newmachine', function () {
+                $.ajax({
+                    url: '/api/v1/addmach',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {ip: $('#newmachineip').val()},
+                    success: function (json) {
+                    }
+                });
+                // taki ajax jak przy wczytaniu listy maszyn
+            });
+        });
+        jQuery(function () {
+            $(document).on('click', '#end', function () {
+                $.ajax({
+                    url: '/api/v1/endmeas',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {ip: $('#measurementsEnd').val(), id: $('#endID').val()},
+                    success: function (json) {
+                    }
+                });
+                $.ajax({
+                    url: '/api/v1/lista',
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (json) {
+                        $('#tabelka').html(json.data);
+                        $("tr").attr("align", "left");
+                        $("table").attr("style", "max-width: 85%; margin: 10px;");
+                    }
+                });
+            });
+        });
+        jQuery(function () {
+            $(document).on('click', '#editpomiar', function () {
+                $.ajax({
+                    url: '/api/v1/editmeas',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {ip: $('#ipsEdit').val(),id: $('#idEdit').val(), port: $('#portEdit').val(), type: $('#typeEdit').val(), conVal: $('#convaledit').val(), alVal: $('#alvaledit').val()},
+                    success: function (json) {
+                    }
+                });
+                $.ajax({
+                    url: '/api/v1/lista',
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (json) {
+                        $('#tabelka').html(json.data);
+                        $("tr").attr("align", "left");
+                        $("table").attr("style", "max-width: 85%; margin: 10px;");
                     }
                 });
             });
@@ -120,8 +202,8 @@
                     dataType: 'json',
                     success: function (json) {
                         $('#tabelka').html(json.data);
-                        $("tr").attr("align","left");
-                        $("table").attr("style","max-width: 85%; margin: 10px;");
+                        $("tr").attr("align", "left");
+                        $("table").attr("style", "max-width: 85%; margin: 10px;");
                     }
                 });
             });
@@ -133,8 +215,8 @@
                 dataType: 'json',
                 success: function (json) {
                     $('#tabelka').html(json.data);
-                    $("tr").attr("align","left");
-                    $("table").attr("style","max-width: 85%; margin: 10px;");
+                    $("tr").attr("align", "left");
+                    $("table").attr("style", "max-width: 85%; margin: 10px;");
                 }
             });
         });
@@ -144,14 +226,53 @@
 <div class="content">
     <h3 style="margin-bottom: 0px"> Tools:</h3>
     <div style="border-bottom: solid lightgray 2px; padding: 10px;">
-        <input placeholder="ID"/>
-        <input placeholder="Port"/>
-        <input placeholder="Value"/>
-        <input placeholder="type"/>
-        <button id="pomiar" title="Begin new measurement table." class="fa fa-exchange"></button>
-        <button id="odswiez" title="Refresh the measurement table." class="fa fa-refresh"></button>
+        <div>
+            <h4 style="margin-bottom: 0px; margin-top: 0px;">New measurement:</h4>
+            <select id="ips" title="IP" placeholder="IP">
+                <option value="192.168.1.1">192.168.1.1</option>
+            </select>
+            <input id="port" title="Port" placeholder="Port"/>
+            <select id="condition" title="Condition">
+                <option value="threshold">threshold</option>
+                <option value="time">time</option>
+                <option value="nocondition">no condition *</option>
+            </select>
+            <input id="conVal" title="Condition value" placeholder="Condition value"/>
+            <input id="alVal" title="Alarm value" placeholder="Alarm value"/>
+            <button id="pomiar" title="Begin new measurement." class="fa fa-exchange"></button>
+            <button id="odswiez" title="Refresh the measurement table." class="fa fa-refresh"></button>
+        </div>
+        <div>
+            <h4 style="margin-bottom: 0px; margin-top: 0px;">End measurement:</h4>
+            <select id="measurementsEnd" title="IP" placeholder="IP">
+                <option value="192.168">192.168.1</option>
+            </select>
+            <input id="endID" title="Measurement id" placeholder="Measurement ID"/>
+            <button id="end" title="End measurement." class="fa fa-ban"></button>
+        </div>
+        <div>
+            <h4 style="margin-bottom: 0px; margin-top: 0px;">Edit measurement:</h4>
+            <select id="ipsEdit" title="IP" placeholder="IP">
+                <option value="192.168.1">192.168.1</option>
+            </select>
+            <input id="idEdit"title="Measurement id" placeholder="Measurement ID"/>
+            <input id="portEdit" title="Port" placeholder="Port"/>
+            <select id="typeEdit" title="Condition">
+                <option value="threshold">threshold</option>
+                <option value="time">time</option>
+                <option value="nocondition">no condition *</option>
+            </select>
+            <input id="convaledit" title="Condition value" placeholder="Condition value"/>
+            <input id="alvaledit" title="Alarm value" placeholder="Alarm value"/>
+            <button id="editpomiar" title="Edit measurement." class="fa fa-bookmark"></button>
+        </div>
+        <div>
+            <h4 style="margin-bottom: 0px; margin-top: 0px;">New machine:</h4>
+            <input id="newmachineip" title="IP" placeholder="IP"/>
+            <button id="newmachine" title="Add new machine." class="fa fa-plus"></button>
+        </div>
     </div>
-        <h3> Measurement table:</h3>
+    <h3> Measurement table:</h3>
     <div id="tabelka" align="center">
 
     </div>
