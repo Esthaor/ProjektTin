@@ -97,6 +97,28 @@ void WwwServer::handle_print_list(struct mg_connection *nc, struct http_message 
     mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
 }
 
+void WwwServer::handle_print_ips(struct mg_connection *nc, struct http_message *hm) {
+    /* Send headers */
+    mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
+
+    /* Compute the result and send it back as a JSON object */
+    string response = "{\"data\":";
+
+    vector<string> ips = database->select_allAgentsWWW();
+    response+="\"";
+    int i = 0;
+    int size = ips.size();
+    for (i=0; i<size;i++){
+        string temp = ips.at(i);
+        response+="<option>" + temp + "</option>";
+    }
+
+    response += "\"}";
+    const char *cresponse = response.c_str();
+    mg_printf_http_chunk(nc, cresponse);
+    mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
+}
+
 void WwwServer::ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     struct http_message *hm = (struct http_message *) ev_data;
 
@@ -112,7 +134,10 @@ void WwwServer::ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 handle_end_measurement(nc, hm);
             } else if (mg_vcmp(&hm->uri, "/api/v1/editmeas") == 0) {
                 handle_edit_measurement(nc, hm);
-            } else {
+            } else if (mg_vcmp(&hm->uri, "/api/v1/agents") == 0){
+                handle_print_ips(nc, hm);
+            }
+            else {
                 mg_serve_http(nc, hm, s_http_server_opts); /* Serve static content */
             }
 

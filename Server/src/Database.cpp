@@ -386,6 +386,27 @@ string Database::select_allWWW()
     return s;
 }
 
+vector<string> Database::select_allAgentsWWW()
+{
+    selectAllWWWresult.clear();
+    /* Create SQL statement */
+    sql = "SELECT IP from AGENTS";
+
+    /* Execute SQL statement */
+    rc = sqlite3_exec(db, sql, callbackWWW, (void*)data, &zErrMsg);
+    if( rc != SQLITE_OK ){
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+        return selectAllWWWresult;
+    }
+    else
+    {
+        fprintf(stdout, "Select IP from AGENTS done successfully\n");
+    }
+
+    return selectAllWWWresult;
+}
+
 int Database::check_exists_value()
 {
     int result = agentExists;
