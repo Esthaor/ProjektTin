@@ -16,6 +16,7 @@ public:
 
     int id;
     bool to_read;
+    bool stop;
     boost::mutex mutex;
 
     int all_total_length;

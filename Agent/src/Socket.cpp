@@ -195,8 +195,14 @@ void Socket::connection_handler (int socket_desc)
             }
             std::cout << "id: " << id << std::endl;
             cout << "poszedl interrupt" << endl;
-            std::cout << "znaleziono thread o id: " << this->thread_list[id]->id << std::endl;
-            this->thread_list[id]->thread_capture->interrupt();
+
+            ThreadMutex* threadMutex = this->mutex_list[id];//this->findMutex(id);
+
+            threadMutex->mutex.lock();
+            std::cout << "po locku w socket" << std::endl;
+            threadMutex->stop = true;
+            threadMutex->mutex.unlock();
+            std::cout << "po unlocku w socket" << std::endl;
         }
 
     }
