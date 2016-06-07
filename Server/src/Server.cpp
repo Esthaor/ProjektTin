@@ -5,13 +5,22 @@
 #include "../include/Server.h"
 #include "../include/Socket.h"
 #include "../include/Database.h"
-#include "../include/mongoose.h"
+//#include "../include/mongoose.h"
 
 Server::Server() {
+
+}
+
+Server::~Server() {
+
+}
+
+int Server::init() {
     //utworzenie bazy danych
     Database* database = new Database();
     database->open();
     database->create_table();
+    database->create_table_agents();
 
 /*    database->insert(73488, 111, "zakonczony", 12344, 1234, 764 );
     database->select_all();
@@ -31,10 +40,6 @@ Server::Server() {
     //TODO: odpalenie serwera WWW z klasy Webserver (do utworzenia)
 
     database->close();
-}
-
-Server::~Server() {
-
 }
 
 string Server::writeJson(string status, int port, string endCondition, int endConditionValue, int alarmValue) {
@@ -66,4 +71,21 @@ bool Server::sendJson(string json) {
 
 
     return true;
+}
+
+void Server::addToMeasurements(string ip, string port, string endCondition, string endConditionValue, string alarmType, string alarmValue) {
+    struct measurement m;
+    m.ip = ip;
+    m.port = stoi(port);
+    m.endCondition = endCondition;
+    m.endConditionValue = stoi(endConditionValue);
+    m.alarmType = alarmType;
+    m.alarmValue = stoi(alarmValue);
+
+    measurements.push_back(m);
+}
+
+void Server::displayMeasurements() {
+    for(int i=0; i<measurements.size(); ++i)
+        std::cout << measurements[i].ip << "," << measurements[i].port << "," << measurements[i].endCondition << "," << measurements[i].endConditionValue << "," << measurements[i].alarmType << "," << measurements[i].alarmValue << endl;
 }
