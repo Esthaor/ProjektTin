@@ -9,6 +9,8 @@
 */
 
 vector<string> Database::selectAllWWWresult;
+int Database::agentExists=-1;
+string Database::ipaddr;
 
 Database::Database()
 {
@@ -162,8 +164,8 @@ int Database::insert_agents(int id_machine, string ip)
     oss.str("");
 
     /* Create SQL statement */
-    sql_temp =  "INSERT INTO STATISTICS (ID_MACHINE,IP) "  \
-         "VALUES ( " + s_id_machine + ", " + s_ip + " );";
+    sql_temp =  "INSERT INTO AGENTS "  \
+         "VALUES ( '" + s_id_machine + "', '" + s_ip + "' );";
 
 
     sql = sql_temp.c_str();
@@ -184,6 +186,28 @@ int Database::insert_agents(int id_machine, string ip)
 
 
     return 1;
+}
+
+int Database::select_ip(string ip)
+{
+    fprintf(stdout, "\n ### DATABASE: ###\n");
+
+    /* Create SQL statement */
+    sql_temp = "SELECT ID_MACHINE from AGENTS where IP = '" + ip + "';";
+    sql = sql_temp.c_str();
+
+    /* Execute SQL statement */
+    rc = sqlite3_exec(db, sql, dallback, (void*)data, &zErrMsg);
+    if( rc != SQLITE_OK ){
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+        return 0;
+    }
+    else
+    {
+        fprintf(stdout, "Select done successfully\n");
+    }
+
 }
 
 bool Database::select_all()
@@ -209,6 +233,30 @@ bool Database::select_all()
 
 return true;
 }
+
+int Database::check_if_exists_agents(string ip)
+{
+
+    fprintf(stdout, "\n ### DATABASE: ###\n");
+
+    /* Create SQL statement */
+    sql_temp = "SELECT EXISTS(SELECT 1 FROM AGENTS WHERE IP='" + ip + "');";
+
+    sql = sql_temp.c_str();
+    char* exists = 0;
+    /* Execute SQL statement */
+    rc = sqlite3_exec(db, sql, callback, &exists, &zErrMsg);
+    if( rc != SQLITE_OK ){
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+        return -1;
+    }
+    else {
+
+        return 1;
+    }
+}
+
 
 bool Database::delete_row(int id_machine, int id_measurement)
 {
@@ -271,17 +319,33 @@ bool Database::update(string status, int id_machine, int id_measurement)
 }
 
 
-  int Database::callback(void *NotUsed, int argc, char **argv, char **azColName)
+int Database::callback(void *NotUsed, int argc, char **argv, char **azColName)
 {
     int i;
     for(i=0; i<argc; i++){
         printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
     }
     printf("\n");
+    //ipaddr = argv[i];
+
+    agentExists = stoi(argv[0]);
     return 0;
 
 }
 
+int Database::dallback(void *NotUsed, int argc, char **argv, char **azColName)
+{
+    int i;
+    for(i=0; i<argc; i++){
+        printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+    }
+    printf("\n");
+    ipaddr = argv[0];
+
+    //agentExists = stoi(argv[0]);
+    return 0;
+
+}
 int Database::callbackWWW(void *NotUsed, int argc, char **argv, char **azColName)
 {
     string toReturn="<tr>";
@@ -302,7 +366,7 @@ string Database::select_allWWW()
 {
     selectAllWWWresult.clear();
     /* Create SQL statement */
-    sql = "SELECT * from STATISTICS";
+    sql = "SELECT IP, ID_MEASUREMENT, STATUS, PORT, ALARM_VALUE, CURRENT_VALUE, DATETIME from STATISTICS, AGENTS where AGENTS.ID_MACHINE = STATISTICS.ID_MACHINE";
 
     /* Execute SQL statement */
     rc = sqlite3_exec(db, sql, callbackWWW, (void*)data, &zErrMsg);
@@ -320,4 +384,18 @@ string Database::select_allWWW()
     s = accumulate(begin(selectAllWWWresult), end(selectAllWWWresult), s);
 
     return s;
+}
+
+int Database::check_exists_value()
+{
+    int result = agentExists;
+    agentExists = -1;
+    return result;
+}
+
+string Database::check_ip_value()
+{
+    string result = ipaddr;
+    ipaddr.clear();
+    return result;
 }

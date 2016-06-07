@@ -50,7 +50,7 @@ public:
 
     bool configureSocket();
     bool startCommunication();
-    bool sendToAgent(string address, string json);
+    static bool sendToAgent(string address, string json);
 
 
 };

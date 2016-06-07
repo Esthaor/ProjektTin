@@ -148,8 +148,7 @@ bool Socket::startCommunication()
             {
                 memset(buffer, 0, sizeof(buffer));
 
-
-                if ((rval = read( sd , buffer, 1024)) == 0)
+                if ((rval = read( sd , buffer, sizeof(buffer)-1)) == 0)
                 {
                     //Some Agent - disconnected
                     getpeername(sd , (struct sockaddr*)&address , (socklen_t*)&addrlen);
@@ -164,6 +163,7 @@ bool Socket::startCommunication()
                     perror("reading stream message");
                 else
                 {
+                    buffer[rval] = '\0';
                     string inputBuffer(buffer, rval);
                     istringstream is(inputBuffer);
 
@@ -172,15 +172,26 @@ bool Socket::startCommunication()
 
                     // Load the json file in this ptree
                     cout << "reading JSON" << endl;
+                    cout<< inputBuffer << endl;
                     read_json(is, root);
                     //cout << "-  " << sd << " ->   " << buffer << endl;
                     string status = root.get<string>("status");
-                    cout<<"Status = " << status << endl;
+                    if(status == "started") {
+                        int id = root.get<int>("id");
+                        int port = root.get<int>("port");
+                        string endCondition = root.get<string>("endCondition");
+                        int endConditionValue = root.get<int>("endConditionValue");
+                        int alarmValue = root.get<int>("alarmValue");
+                        int currentValue = root.get<int>("currentValue");
+                        int datetime = root.get<int>("datetime");
+                        string ip = inet_ntoa(address.sin_addr);
+
+
+                    }
                 }
             }
         }
     }
-    return true;
 }
 
 
@@ -188,11 +199,12 @@ bool Socket::sendToAgent(string address, string json)
 {
     int socket_desc;
     struct sockaddr_in agent;
-    char message[256];
+    char* message = new char [json.length()+1];
     int maxRetries = 10;
     int retryTime = 30;
 
-    json.copy(message,json.length(),0);
+    std::strcpy(message, json.c_str());
+
     socket_desc = socket(AF_INET , SOCK_STREAM , 0);
     if (socket_desc == -1)
     {

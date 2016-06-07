@@ -22,11 +22,11 @@ bool Socket::sendToServer(string json)
 {
     int socket_desc;
     struct sockaddr_in server;
-    char message[256];
+    char* message = new char [json.length()+1];
     int maxRetries = 10;
     int retryTime = 30;
 
-    json.copy(message,json.length(),0);
+    std::strcpy(message, json.c_str());
     socket_desc = socket(AF_INET , SOCK_STREAM , 0);
     if (socket_desc == -1)
     {
@@ -115,14 +115,15 @@ void Socket::connection_handler (int socket_desc)
 {
     //Get the socket descriptor
     int sock =  socket_desc;
-    char buffer[256];
-    bzero(buffer, 256);
-    int len = read(sock, buffer, 255);
+    char buffer[1024];
+    bzero(buffer, 1024);
+    int len = read(sock, buffer, sizeof(buffer)-1);
     if ( len < 0 ) {
         cout << "blad odczytu" << endl;
     } else if ( len == 0 ) {
         cout << "eof" << endl;
     } else {
+        buffer[len] = '\0';
         string inputBuffer(buffer, len);
         istringstream is(inputBuffer);
 
@@ -131,6 +132,7 @@ void Socket::connection_handler (int socket_desc)
 
         // Load the json file in this ptree
         cout << "reading JSON" << endl;
+        cout << inputBuffer << endl;
         read_json(is, root);
 
         string status = root.get<string>("status");

@@ -48,11 +48,11 @@ public:
 
     int init();
     std::string writeJson(std::string status, int port, std::string endCondition, int endConditionValue, int alarmValue);
-    bool sendJson(std::string json);
+    bool sendJSON(string ip, string json);
     void error(char* msg);
-    void addToMeasurements(string ip, string port, string endCondition, string endConditionValue, string alarmType, string alarmValue);
-    void displayMeasurements();
-
+    void addToMeasurements(string ip, string port, string endCondition, string endConditionValue, string alarmValue);
+    void sendMeasurements();
+    static int nextAgentID;
 
     };
 
