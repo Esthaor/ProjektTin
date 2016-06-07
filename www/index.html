@@ -147,7 +147,16 @@
                     success: function (json) {
                     }
                 });
-                // taki ajax jak przy wczytaniu listy maszyn
+                $.ajax({
+                    url: '/api/v1/agents',
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (json) {
+                        $('#ipsEdit').html(json.data);
+                        $('#measurementsEnd').html(json.data);
+                        $('#ips').html(json.data);
+                    }
+                });
             });
         });
         jQuery(function () {
@@ -217,6 +226,16 @@
                     $('#tabelka').html(json.data);
                     $("tr").attr("align", "left");
                     $("table").attr("style", "max-width: 85%; margin: 10px;");
+                }
+            });
+            $.ajax({
+                url: '/api/v1/agents',
+                method: 'GET',
+                dataType: 'json',
+                success: function (json) {
+                    $('#ipsEdit').html(json.data);
+                    $('#measurementsEnd').html(json.data);
+                    $('#ips').html(json.data);
                 }
             });
         });
