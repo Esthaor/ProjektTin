@@ -56,6 +56,8 @@ public:
     static int nextAgentID;
     static string writeSmallJson(string status, int id);
     static void addMachine(string ip);
+    static string writeBigJson(string status, int id, string endCondition, int endConditionValue, int alarmValue);
+
 
     };
 

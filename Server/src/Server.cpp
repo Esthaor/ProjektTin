@@ -74,6 +74,27 @@ string Server::writeJson(string status, int port, string endCondition, int endCo
     return json;
 }
 
+
+string Server::writeBigJson(string status, int id, string endCondition, int endConditionValue, int alarmValue) {
+
+    ptree contents;
+
+    // Dodanie elementów JSONa
+    contents.put("status", status);
+    contents.put("id", id);
+    contents.put("endCondition", endCondition);
+    contents.put("endConditionValue", endConditionValue);
+    contents.put("alarmValue", alarmValue);
+
+    // Formowanie gotowego stringa
+    std::ostringstream buf;
+    write_json(buf, contents, false);
+    string json = buf.str();
+
+    return json;
+}
+
+
 string Server::writeSmallJson(string status, int id) {
 
     ptree contents;
@@ -88,17 +109,6 @@ string Server::writeSmallJson(string status, int id) {
     string json = buf.str();
 
     return json;
-}
-
-
-bool Server::sendJSON(string ip, string json) {
-
-
-
-
-
-
-    return true;
 }
 
 
@@ -126,6 +136,7 @@ void Server::sendMeasurements() {
             cout << "nie istnieje" << endl;
             WwwServer::database->insert_agents(nextAgentID++, measurements[i].ip);
         }
+
 
         sleep(1);
     }

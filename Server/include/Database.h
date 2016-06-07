@@ -43,6 +43,7 @@ public:
     bool select_all();
     bool delete_row(int id_machine, int id_measurement);
     bool update(string status, int id_machine, int id_measurement, int alarmValue, int currentValue);
+    bool update2(string status, int id_machine, int id_measurement, int alarmValue);
     int select_ip(string ip);
     static int callback(void *NotUsed, int argc, char **argv, char **azColName);
     static int dallback(void *NotUsed, int argc, char **argv, char **azColName);

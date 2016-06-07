@@ -83,13 +83,12 @@ void WwwServer::handle_end_measurement(struct mg_connection *nc, struct http_mes
 }
 
 void WwwServer::handle_edit_measurement(struct mg_connection *nc, struct http_message *hm) {
-    char ip[100],id[100], port[100], type[100], conVal[100], alVal[100];
+    char ip[100],id[100], type[100], conVal[100], alVal[100];
     double result;
 
     /* Get form variables */
     mg_get_http_var(&hm->body, "ip", ip, sizeof(ip));
     mg_get_http_var(&hm->body, "id", id, sizeof(ip));
-    mg_get_http_var(&hm->body, "port", port, sizeof(port));
     mg_get_http_var(&hm->body, "type", type, sizeof(type));
     mg_get_http_var(&hm->body, "conVal", conVal, sizeof(conVal));
     mg_get_http_var(&hm->body, "alVal", alVal, sizeof(alVal));
@@ -100,15 +99,19 @@ void WwwServer::handle_edit_measurement(struct mg_connection *nc, struct http_me
     // edycja pomiaru z danych z jsona
 
     string sIp = ip;
-    string sPort = port;
+    string sId = id;
     string sType = type;
     string sConVal = conVal;
     string sAlVal = alVal;
-    int iPort = stoi(sPort);
+    int iId = stoi (sId);
     int iConVal = stoi(sConVal);
     int iAlVal = stoi(sAlVal);
 
-    Server::sendMeasurement(sIp, Server::writeJson("change", iPort, sType, iConVal, iAlVal));
+    Server::sendMeasurement(sIp, Server::writeBigJson("change", iId, sType, iConVal, iAlVal));
+
+    database->select_ip(ip);
+    int machine_id = database->check_machine_id();
+    database->update2("changed", machine_id, iId, iAlVal);
 
     mg_printf_http_chunk(nc, "{ \"result\": %lf }", result);
     mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
