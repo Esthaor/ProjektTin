@@ -69,8 +69,37 @@ bool Database::create_table()
         }
         else
         {
-            fprintf(stdout, "Table created successfully\n");
+            fprintf(stdout, "Table STATISTICS created successfully\n");
         }
+
+    return true;
+}
+
+bool Database::create_table_agents()
+{
+    zErrMsg = 0;
+    data = "Callback function called";
+
+
+    /* Create SQL statement */
+    sql = "CREATE TABLE AGENTS("  \
+         "ID_MACHINE          INT    NOT NULL," \
+         "IP            TEXT     NOT NULL," \
+         "FOREIGN KEY(ID_MACHINE) REFERENCES STATISTICS(ID_MACHINE));";
+
+
+    /* Execute SQL statement */
+    rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+    if( rc != SQLITE_OK )
+    {
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+        return false;
+    }
+    else
+    {
+        fprintf(stdout, "Table AGENTS created successfully\n");
+    }
 
     return true;
 }
@@ -115,12 +144,48 @@ int Database::insert(int id_machine, int id_measurement, string status, int port
     }
     else
     {
-        fprintf(stdout, "Record created successfully\n");
+        fprintf(stdout, "Record in table STATISTICS created successfully\n");
     }
 
 
     return 1;
 }
+
+int Database::insert_agents(int id_machine, string ip)
+{
+    oss << "" << id_machine;
+    string s_id_machine= oss.str();
+    oss.str("");
+
+    oss << "" << ip;
+    string s_ip = oss.str();
+    oss.str("");
+
+    /* Create SQL statement */
+    sql_temp =  "INSERT INTO STATISTICS (ID_MACHINE,IP) "  \
+         "VALUES ( " + s_id_machine + ", " + s_ip + " );";
+
+
+    sql = sql_temp.c_str();
+
+
+    /* Execute SQL statement */
+    rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+    if( rc != SQLITE_OK )
+    {
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+        return -1;
+    }
+    else
+    {
+        fprintf(stdout, "Record in table AGENTS created successfully\n");
+    }
+
+
+    return 1;
+}
+
 bool Database::select_all()
 {
 
@@ -138,7 +203,7 @@ bool Database::select_all()
     }
     else
     {
-        fprintf(stdout, "Select * done successfully\n");
+        fprintf(stdout, "Select done successfully\n");
     }
 
 
@@ -214,6 +279,7 @@ bool Database::update(string status, int id_machine, int id_measurement)
     }
     printf("\n");
     return 0;
+
 }
 
 int Database::callbackWWW(void *NotUsed, int argc, char **argv, char **azColName)

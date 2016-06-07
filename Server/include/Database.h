@@ -35,7 +35,9 @@ public:
     bool open();
     void close();
     bool create_table();
+    bool create_table_agents();
     int insert(int id_machine, int id_measurement, string status, int port, int alarm_value, int current_value);
+    int insert_agents(int id_machine, string ip);
     bool select_all();
     bool delete_row(int id_machine, int id_measurement);
     bool update(string status, int id_machine, int id_measurement);

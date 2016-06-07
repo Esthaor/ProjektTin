@@ -23,22 +23,38 @@ using namespace std;
 class Server {
 
 private:
+    struct measurement {
+        string ip;
+        int port;
+        string endCondition;
+        int endConditionValue;
+        string alarmType;
+        int alarmValue;
+    };
+
     int sock, length;
     struct sockaddr_in server;
     int msgsock;
     char buffer[1024];
     int rval;
     boost::thread* communicationThread;
+    vector<struct measurement> measurements;
+
+
 
 public:
     Server();
     ~Server();
 
+    int init();
     std::string writeJson(std::string status, int port, std::string endCondition, int endConditionValue, int alarmValue);
     bool sendJson(std::string json);
     void error(char* msg);
+    void addToMeasurements(string ip, string port, string endCondition, string endConditionValue, string alarmType, string alarmValue);
+    void displayMeasurements();
 
-};
+
+    };
 
 
 #endif //PROJEKTTIN_SERVER_H
