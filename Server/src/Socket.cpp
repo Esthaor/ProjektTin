@@ -3,6 +3,8 @@
 //
 
 #include "../include/Socket.h"
+#include "WwwServer.h"
+
 
 #define PORT 5000
 #define MAX_CLIENTS 30
@@ -176,16 +178,27 @@ bool Socket::startCommunication()
                     read_json(is, root);
                     //cout << "-  " << sd << " ->   " << buffer << endl;
                     string status = root.get<string>("status");
+                    string ip = inet_ntoa(address.sin_addr);
+                    WwwServer::database->select_ip(ip);
+                    int machineID = stoi(WwwServer::database->check_machine_id());
+                    int id = root.get<int>("id");
+                    int port = root.get<int>("port");
+                    int alarmValue = root.get<int>("alarmValue");
+                    int currentValue = root.get<int>("currentValue");
+                    cout << currentValue << endl;
+
                     if(status == "started") {
-                        int id = root.get<int>("id");
-                        int port = root.get<int>("port");
                         string endCondition = root.get<string>("endCondition");
                         int endConditionValue = root.get<int>("endConditionValue");
-                        int alarmValue = root.get<int>("alarmValue");
-                        int currentValue = root.get<int>("currentValue");
                         int datetime = root.get<int>("datetime");
-                        string ip = inet_ntoa(address.sin_addr);
 
+                        WwwServer::database->insert(machineID, id, status, port, alarmValue, currentValue);
+                    }else if (status == "results") {
+                        WwwServer::database->update(status, machineID, id, alarmValue, currentValue);
+
+
+                    }else if (status == "alarm") {
+                        WwwServer::database->update(status, machineID, id, alarmValue, currentValue);
 
                     }
                 }

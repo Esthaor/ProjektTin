@@ -47,12 +47,15 @@ public:
     ~Server();
 
     int init();
-    std::string writeJson(std::string status, int port, std::string endCondition, int endConditionValue, int alarmValue);
+    static std::string writeJson(std::string status, int port, std::string endCondition, int endConditionValue, int alarmValue);
     bool sendJSON(string ip, string json);
     void error(char* msg);
     void addToMeasurements(string ip, string port, string endCondition, string endConditionValue, string alarmValue);
     void sendMeasurements();
+    static void sendMeasurement(string ip, string json);
     static int nextAgentID;
+    static string writeSmallJson(string status, int id);
+
 
     };
 

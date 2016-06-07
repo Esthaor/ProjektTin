@@ -42,7 +42,7 @@ public:
 
     bool select_all();
     bool delete_row(int id_machine, int id_measurement);
-    bool update(string status, int id_machine, int id_measurement);
+    bool update(string status, int id_machine, int id_measurement, int alarmValue, int currentValue);
     int select_ip(string ip);
     static int callback(void *NotUsed, int argc, char **argv, char **azColName);
     static int dallback(void *NotUsed, int argc, char **argv, char **azColName);
@@ -51,8 +51,8 @@ public:
     string select_allWWW();
     static int agentExists;
     int check_exists_value();
-    static string ipaddr;
-    string check_ip_value();
+    static string mid;
+    string check_machine_id();
 
 
 };

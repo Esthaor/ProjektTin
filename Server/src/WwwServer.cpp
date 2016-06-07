@@ -3,6 +3,7 @@
 //
 
 #include "WwwServer.h"
+#include "Server.h"
 
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
@@ -21,6 +22,16 @@ void WwwServer::handle_add_measurment(struct mg_connection *nc, struct http_mess
 
     /* Send headers */
     mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
+    string sIp = ip;
+    string sPort = port;
+    string sType = type;
+    string sConVal = conVal;
+    string sAlVal = alVal;
+    int iPort = stoi(sPort);
+    int iConVal = stoi(sConVal);
+    int iAlVal = stoi(sAlVal);
+
+    Server::sendMeasurement(sIp, Server::writeJson("start", iPort, sType, iConVal, iAlVal));
 
     // TODO: Dodać tutaj dodawanie pomiaru z danych z jsona
 
@@ -55,7 +66,15 @@ void WwwServer::handle_end_measurement(struct mg_connection *nc, struct http_mes
     /* Send headers */
     mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
 
+    string sIp = ip;
+    string sId = id;
+    int iId = stoi(sId);
+    Server::sendMeasurement(sIp, Server::writeSmallJson("stop", iId));
+
+
     // TODO: Dodać tutaj kończenie pomiaru
+
+
 
     mg_printf_http_chunk(nc, "{ \"result\": %lf }", result);
     mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
@@ -67,7 +86,7 @@ void WwwServer::handle_edit_measurement(struct mg_connection *nc, struct http_me
 
     /* Get form variables */
     mg_get_http_var(&hm->body, "ip", ip, sizeof(ip));
-    mg_get_http_var(&hm->body, "id", ip, sizeof(ip));
+    mg_get_http_var(&hm->body, "id", id, sizeof(ip));
     mg_get_http_var(&hm->body, "port", port, sizeof(port));
     mg_get_http_var(&hm->body, "type", type, sizeof(type));
     mg_get_http_var(&hm->body, "conVal", conVal, sizeof(conVal));
@@ -77,6 +96,17 @@ void WwwServer::handle_edit_measurement(struct mg_connection *nc, struct http_me
     mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
 
     // TODO: Dodać tutaj edycje pomiaru z danych z jsona
+
+    string sIp = ip;
+    string sPort = port;
+    string sType = type;
+    string sConVal = conVal;
+    string sAlVal = alVal;
+    int iPort = stoi(sPort);
+    int iConVal = stoi(sConVal);
+    int iAlVal = stoi(sAlVal);
+
+    Server::sendMeasurement(sIp, Server::writeJson("change", iPort, sType, iConVal, iAlVal));
 
     mg_printf_http_chunk(nc, "{ \"result\": %lf }", result);
     mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
