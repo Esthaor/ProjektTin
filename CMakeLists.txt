@@ -16,7 +16,7 @@ set(SERVER_SOURCE_FILES
         Server/src/Server.cpp
         Server/src/Socket.cpp
         Server/src/Database.cpp
-        )
+        Server/src/mongoose.c Server/src/WwwServer.cpp Server/include/WwwServer.h)
 
 find_package(Boost COMPONENTS system thread REQUIRED)
 find_package(Threads REQUIRED)
@@ -35,3 +35,7 @@ target_include_directories(SIDserver PRIVATE
         ${Boost_INCLUDE_DIRS}
         )
 target_link_libraries(SIDserver ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${SQLITE3_LIBRARY} pcap)
+
+add_custom_command(TARGET SIDserver POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/www $<TARGET_FILE_DIR:SIDserver>)

@@ -5,7 +5,8 @@
 #include "../include/Server.h"
 #include "../include/Socket.h"
 #include "../include/Database.h"
-//#include "../include/mongoose.h"
+#include "../include/mongoose.h"
+#include "WwwServer.h"
 
 Server::Server() {
 
@@ -37,7 +38,9 @@ int Server::init() {
     //iteracja po liście Agentów i odpalenie wątku złożenia jsona i wysłania polecenia pomiaru dla każdego z nich
 
 
-    //TODO: odpalenie serwera WWW z klasy Webserver (do utworzenia)
+    WwwServer* www = new WwwServer();
+    www->database = database;
+    www->wwwServerStart();
 
     database->close();
 }

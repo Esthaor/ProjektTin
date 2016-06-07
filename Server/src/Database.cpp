@@ -8,6 +8,8 @@
 /* g++ Server/include/Database.h Server/include/Server.h Server/include/Socket.h Server/src/Database.cpp Server/src/Server.cpp Server/src/Socket.cpp Server/src/main.cpp -lboost_system -lboost_thread -lpcap -lsqlite3
 */
 
+vector<string> Database::selectAllWWWresult;
+
 Database::Database()
 {
 
@@ -277,4 +279,45 @@ bool Database::update(string status, int id_machine, int id_measurement)
     }
     printf("\n");
     return 0;
+
+}
+
+int Database::callbackWWW(void *NotUsed, int argc, char **argv, char **azColName)
+{
+    string toReturn="<tr>";
+    int i;
+    for(i=0; i<argc; i++){
+        printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+        if (argv[i] != NULL)
+            toReturn += "<td>" + (string)argv[i] + "</td>";
+        else
+            toReturn += "<td> NULL </td>";
+    }
+    toReturn += "</tr>";
+    selectAllWWWresult.push_back(toReturn);
+    return 0;
+}
+
+string Database::select_allWWW()
+{
+    selectAllWWWresult.clear();
+    /* Create SQL statement */
+    sql = "SELECT * from STATISTICS";
+
+    /* Execute SQL statement */
+    rc = sqlite3_exec(db, sql, callbackWWW, (void*)data, &zErrMsg);
+    if( rc != SQLITE_OK ){
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+        return NULL;
+    }
+    else
+    {
+        fprintf(stdout, "Select * done successfully\n");
+    }
+
+    string s;
+    s = accumulate(begin(selectAllWWWresult), end(selectAllWWWresult), s);
+
+    return s;
 }

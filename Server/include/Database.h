@@ -12,8 +12,8 @@
 #include <string>
 #include <cstring>
 #include <sstream>
-
-
+#include <vector>
+#include <numeric>
 
 using namespace std;
 
@@ -30,6 +30,7 @@ public:
     const char* data;
     string sql_temp;
     ostringstream oss;
+    static vector<string> selectAllWWWresult;
 
     bool open();
     void close();
@@ -41,8 +42,8 @@ public:
     bool delete_row(int id_machine, int id_measurement);
     bool update(string status, int id_machine, int id_measurement);
     static int callback(void *NotUsed, int argc, char **argv, char **azColName);
-
-
+    static int callbackWWW(void *NotUsed, int argc, char **argv, char **azColName);
+    string select_allWWW();
 };
 
 
