@@ -55,7 +55,7 @@ public:
     static void sendMeasurement(string ip, string json);
     static int nextAgentID;
     static string writeSmallJson(string status, int id);
-
+    static void addMachine(string ip);
 
     };
 

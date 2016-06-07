@@ -141,3 +141,10 @@ void Server::sendMeasurement(string ip, string json) {
         WwwServer::database->insert_agents(nextAgentID++, ip);
     }
 }
+
+void Server::addMachine(string ip) {
+    WwwServer::database->check_if_exists_agents(ip);
+    if((WwwServer::database->check_exists_value())==0) {
+        WwwServer::database->insert_agents(nextAgentID++, ip);
+    }
+}

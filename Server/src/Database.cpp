@@ -10,7 +10,7 @@
 
 vector<string> Database::selectAllWWWresult;
 int Database::agentExists=-1;
-string Database::mid;
+int Database::mid = -1;
 
 Database::Database()
 {
@@ -337,7 +337,7 @@ int Database::callback(void *NotUsed, int argc, char **argv, char **azColName)
     printf("\n");
     //ipaddr = argv[i];
 
-    agentExists = stoi(argv[0]);
+    agentExists = atoi(argv[0]);
     return 0;
 
 }
@@ -349,7 +349,8 @@ int Database::dallback(void *NotUsed, int argc, char **argv, char **azColName)
         printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
     }
     printf("\n");
-    mid = argv[0];
+    string mid1 = argv[0];
+    mid = stoi(mid1);
 
     //agentExists = stoi(argv[0]);
     return 0;
@@ -423,9 +424,9 @@ int Database::check_exists_value()
     return result;
 }
 
-string Database::check_machine_id()
+int Database::check_machine_id()
 {
-    string result = mid;
-    mid.clear();
+    int result = mid;
+    mid = -1;
     return result;
 }

@@ -52,8 +52,8 @@ public:
     vector<string> select_allAgentsWWW();
     static int agentExists;
     int check_exists_value();
-    static string mid;
-    string check_machine_id();
+    static int mid;
+    int check_machine_id();
 
 
 };

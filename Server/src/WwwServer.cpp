@@ -33,7 +33,7 @@ void WwwServer::handle_add_measurment(struct mg_connection *nc, struct http_mess
 
     Server::sendMeasurement(sIp, Server::writeJson("start", iPort, sType, iConVal, iAlVal));
 
-    // TODO: Dodać tutaj dodawanie pomiaru z danych z jsona
+    //  dodawanie pomiaru z danych z jsona
 
     mg_printf_http_chunk(nc, "{ \"result\": %lf }", result);
     mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
@@ -49,7 +49,9 @@ void WwwServer::handle_add_machine(struct mg_connection *nc, struct http_message
     /* Send headers */
     mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
 
+    string sIp = ip;
     // TODO: Dodać tutaj dodawanie maszyny z danych z jsona
+    Server::addMachine(sIp);
 
     mg_printf_http_chunk(nc, "{ \"result\": %lf }", result);
     mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
@@ -72,7 +74,7 @@ void WwwServer::handle_end_measurement(struct mg_connection *nc, struct http_mes
     Server::sendMeasurement(sIp, Server::writeSmallJson("stop", iId));
 
 
-    // TODO: Dodać tutaj kończenie pomiaru
+    // kończenie pomiaru
 
 
 
@@ -95,7 +97,7 @@ void WwwServer::handle_edit_measurement(struct mg_connection *nc, struct http_me
     /* Send headers */
     mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
 
-    // TODO: Dodać tutaj edycje pomiaru z danych z jsona
+    // edycja pomiaru z danych z jsona
 
     string sIp = ip;
     string sPort = port;
